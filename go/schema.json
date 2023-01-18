@@ -1,0 +1,293 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://k8s.io/kube-state-metrics/v2/pkg/customresourcestate/metrics",
+  "$ref": "#/$defs/Metrics",
+  "$defs": {
+    "Generator": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "help": {
+          "type": "string"
+        },
+        "each": {
+          "$ref": "#/$defs/Metric"
+        },
+        "commonLabels": {
+          "patternProperties": {
+            ".*": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "labelsFromPath": {
+          "patternProperties": {
+            ".*": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        },
+        "errorLogV": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "name",
+        "help",
+        "each",
+        "commonLabels",
+        "labelsFromPath",
+        "errorLogV"
+      ]
+    },
+    "GroupVersionKind": {
+      "properties": {
+        "group": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "group",
+        "version",
+        "kind"
+      ]
+    },
+    "Metric": {
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "gauge": {
+          "$ref": "#/$defs/MetricGauge"
+        },
+        "stateSet": {
+          "$ref": "#/$defs/MetricStateSet"
+        },
+        "info": {
+          "$ref": "#/$defs/MetricInfo"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type",
+        "gauge",
+        "stateSet",
+        "info"
+      ]
+    },
+    "MetricGauge": {
+      "properties": {
+        "labelsFromPath": {
+          "patternProperties": {
+            ".*": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        },
+        "path": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "valueFrom": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "labelFromKey": {
+          "type": "string"
+        },
+        "nilIsZero": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "labelsFromPath",
+        "path",
+        "valueFrom",
+        "labelFromKey",
+        "nilIsZero"
+      ]
+    },
+    "MetricInfo": {
+      "properties": {
+        "labelsFromPath": {
+          "patternProperties": {
+            ".*": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        },
+        "path": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "labelFromKey": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "labelsFromPath",
+        "path",
+        "labelFromKey"
+      ]
+    },
+    "MetricStateSet": {
+      "properties": {
+        "labelsFromPath": {
+          "patternProperties": {
+            ".*": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        },
+        "path": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "list": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "labelName": {
+          "type": "string"
+        },
+        "valueFrom": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "labelsFromPath",
+        "path",
+        "list",
+        "labelName",
+        "valueFrom"
+      ]
+    },
+    "Metrics": {
+      "properties": {
+        "spec": {
+          "$ref": "#/$defs/MetricsSpec"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "spec"
+      ]
+    },
+    "MetricsSpec": {
+      "properties": {
+        "resources": {
+          "items": {
+            "$ref": "#/$defs/Resource"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "resources"
+      ]
+    },
+    "Resource": {
+      "properties": {
+        "metricNamePrefix": {
+          "type": "string"
+        },
+        "groupVersionKind": {
+          "$ref": "#/$defs/GroupVersionKind"
+        },
+        "commonLabels": {
+          "patternProperties": {
+            ".*": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "labelsFromPath": {
+          "patternProperties": {
+            ".*": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        },
+        "metrics": {
+          "items": {
+            "$ref": "#/$defs/Generator"
+          },
+          "type": "array"
+        },
+        "errorLogV": {
+          "type": "integer"
+        },
+        "resourcePlural": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "metricNamePrefix",
+        "groupVersionKind",
+        "commonLabels",
+        "labelsFromPath",
+        "metrics",
+        "errorLogV",
+        "resourcePlural"
+      ]
+    }
+  }
+}
