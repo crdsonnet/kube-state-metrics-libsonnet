@@ -1,5 +1,5 @@
 {
-  customResourceMetricsState: {
+  customResourceStateMetrics+: {
     new(): {
       kind: 'CustomResourceStateMetrics',
     },

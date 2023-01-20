@@ -1,5 +1,5 @@
-local customResourceStateMetrics = import './main.libsonnet';
-local crsm = customResourceStateMetrics;  // shortcut
+local ksmCustom = import './main.libsonnet';
+local crsm = ksmCustom.customResourceStateMetrics;  // shortcut
 
 // Example: rebuild example from docs with Jsonnet to validate the library
 

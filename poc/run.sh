@@ -4,6 +4,8 @@ IFS=$'\n\t'
 
 DIRNAME="$(dirname "$0")"
 
+jsonnet -J vendor "${DIRNAME}/custommetrics.jsonnet" > "${DIRNAME}/custommetrics.yaml"
+
 kube-state-metrics \
     --port=8080 \
     --telemetry-port=8081 \

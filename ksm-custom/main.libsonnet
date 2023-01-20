@@ -1,7 +1,7 @@
 local crdsonnet = import 'github.com/Duologic/crdsonnet/crdsonnet/main.libsonnet';
 local schemadb = import 'github.com/Duologic/crdsonnet/crdsonnet/schemadb.libsonnet';
 
-local schema = import 'go/schema.json';
+local schema = import 'schema.json';
 
 local db = schemadb.add(schema);
 
@@ -13,7 +13,7 @@ local customResourceMetricsStateSchema =
   };
 
 crdsonnet.fromSchema(
-  'customResourceMetricsState',
+  'customResourceStateMetrics',
   customResourceMetricsStateSchema,
   db,
   render=render
