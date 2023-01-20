@@ -1,0 +1,20 @@
+kind: CustomResourceStateMetrics
+spec:
+  resources:
+    - groupVersionKind:
+        group: database.gcp.crossplane.io
+        kind: "CloudSQLInstance"
+        version: "v1beta1"
+      labelsFromPath:
+        name: [metadata, name]
+        namespace: [metadata, namespace]
+      metricNamePrefix: 'xplane_cloudsqlinstance'
+      metrics:
+        - name: "databaseVersion"
+          help: "Database version"
+          each:
+            type: Info
+            info:
+              labelsFromPath:
+                version: [spec, forProvider, databaseVersion]
+
