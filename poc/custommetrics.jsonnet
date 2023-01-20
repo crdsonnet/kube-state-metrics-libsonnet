@@ -2,25 +2,6 @@ local ksmCustom = import 'ksm-custom/main.libsonnet';
 local crsm = ksmCustom.customResourceStateMetrics;  // shortcut
 
 
-//kind: CustomResourceStateMetrics
-//spec:
-//  resources:
-//    - groupVersionKind:
-//        group: database.gcp.crossplane.io
-//        kind: "CloudSQLInstance"
-//        version: "v1beta1"
-//      labelsFromPath:
-//        name: [metadata, name]
-//        namespace: [metadata, namespace]
-//      metricNamePrefix: 'xplane_cloudsqlinstance'
-//      metrics:
-//        - name: "databaseVersion"
-//          help: "Database version"
-//          each:
-//            type: Info
-//            info:
-//              labelsFromPath:
-//                version: [spec, forProvider, databaseVersion]
 crsm.new()
 + crsm.spec.withResources([
   local resource = crsm.spec.resources;
@@ -32,6 +13,7 @@ crsm.new()
   + resource.withMetricNamePrefix('xplane_cloudsqlinstance')
   + resource.withLabelsFromPath({
     name: ['metadata', 'name'],
+    namespace: ['metadata', 'namespace'],
   })
   + resource.withMetrics([
     local metric = crsm.spec.resources.metrics;

@@ -12,6 +12,10 @@
                "name": [
                   "metadata",
                   "name"
+               ],
+               "namespace": [
+                  "metadata",
+                  "namespace"
                ]
             },
             "metricNamePrefix": "xplane_cloudsqlinstance",
