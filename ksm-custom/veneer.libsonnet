@@ -22,4 +22,6 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
         + self.groupVersionKind.withKind(kind),
     },
   },
+
+  crossplane: (import './crossplane.libsonnet'),
 }

@@ -1,4 +1,4 @@
-# package ksm-custom
+# ksm-custom
 
 `ksm-custom` can generate config for [Custom Resource State Metrics](https://github.com/kubernetes/kube-state-metrics/blob/main/docs/customresourcestate-metrics.md) from kube-state-metrics.
 
@@ -14,6 +14,10 @@ jb install github.com/crdsonnet/ksm-custom-libsonnet/ksm-custom@master
 ```jsonnet
 local ksm-custom = import "github.com/crdsonnet/ksm-custom-libsonnet/ksm-custom/main.libsonnet"
 ```
+
+## Subpackages
+
+* [crossplane](ksm-custom/crossplane.md)
 
 ## Index
 
