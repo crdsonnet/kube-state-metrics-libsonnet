@@ -5,7 +5,13 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
 {
   '#':: d.package.new(
     'kubeStateMetrics',
-    'github.com/crdsonnet/kube-state-metrics-libsonnet/kube-state-metrics',
+    help=|||
+      `kube-state-metrics` provides the manifests to configure kube-state-metrics
+      instances on Kubernetes.
+
+      This library is based on https://github.com/grafana/jsonnet-libs/tree/master/kube-state-metrics
+    |||,
+    url='github.com/crdsonnet/kube-state-metrics-libsonnet/kube-state-metrics',
     filename=std.thisFile,
   ),
 
@@ -215,4 +221,6 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
     deployment+:
       deployment.configMapVolumeMount(self.CRSMConfigMap, '/crsmconfig'),
   },
+
+  utils: (import './utils.libsonnet'),
 }
