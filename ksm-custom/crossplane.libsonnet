@@ -13,12 +13,12 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
       ```jsonnet
       local definitions = [
         {
-          group: 'database.crossplane.grafana.net',
+          group: 'database.crossplane.example.org',
           kind: 'MySQLInstance',
           version: 'v1alpha1',
         },
         {
-          group: 'database.crossplane.grafana.net',
+          group: 'database.crossplane.example.org',
           kind: 'PostgreSQLInstance',
           version: 'v1alpha1',
         },
@@ -30,7 +30,13 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
         for def in definitions
       ])
       ```
-    |||,
+
+      Example of the metrics:
+
+      ```
+      %s
+      ```
+    ||| % (importstr './exampleOutput/statusResource'),
     args=[
       d.arg('group', d.T.string),
       d.arg('version', d.T.string),

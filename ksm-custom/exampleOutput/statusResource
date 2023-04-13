@@ -1,47 +1,3 @@
-# crossplane
-
-Helper functions related to Crossplane
-
-## Index
-
-* [`fn statusResource(group, version, kind)`](#fn-statusresource)
-
-## Fields
-
-### fn statusResource
-
-```ts
-statusResource(group, version, kind)
-```
-
-This is a first attempt at gathering metrics for Crossplane resources using
-CustomResourceStateMetrics. This may change heavily, contributions and input
-much appreciated.
-
-```jsonnet
-local definitions = [
-  {
-    group: 'database.crossplane.example.org',
-    kind: 'MySQLInstance',
-    version: 'v1alpha1',
-  },
-  {
-    group: 'database.crossplane.example.org',
-    kind: 'PostgreSQLInstance',
-    version: 'v1alpha1',
-  },
-];
-
-ksmCustom.new()
-+ ksmCustom.spec.withResources([
-  statusResource(def.group, def.version, def.kind)
-  for def in definitions
-])
-```
-
-Example of the metrics:
-
-```
 # HELP crossplane_status_ready_reason Conditions for Ready - Reason
 # TYPE crossplane_status_ready_reason gauge
 crossplane_status_ready_reason{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",reason="Available",version="v1alpha1"} 1
@@ -61,6 +17,3 @@ crossplane_status_ready{group="database.crossplane.example.org",kind="MySQLInsta
 # TYPE crossplane_status_synced gauge
 crossplane_status_synced{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",status="False",version="v1alpha1"} 0
 crossplane_status_synced{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",status="True",version="v1alpha1"} 1
-
-```
-
