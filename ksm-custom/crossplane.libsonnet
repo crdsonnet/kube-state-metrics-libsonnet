@@ -66,7 +66,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
       version,
       kind,
     )
-    + resource.withMetricNamePrefix('crossplane_')
+    + resource.withMetricNamePrefix('crossplane')
     + resource.withLabelsFromPath({
       name: ['metadata', 'name'],
       namespace: ['metadata', 'namespace'],
