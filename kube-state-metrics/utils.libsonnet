@@ -9,7 +9,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
 
   '#createWatchRules':: d.fn(
     |||
-      `createWatchRules` turns an array of group/kinds into a set of policyRules with
+      `createWatchRules` turns an array of group/resources into a set of policyRules with
       list/watch verbs.
 
       For example, this array:
@@ -18,7 +18,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
       [
         {
           group: 'apps',
-          kinds: ['daemonsets', 'deployments'],
+          resources: ['daemonsets', 'deployments'],
         }
       ]
       ```
@@ -46,14 +46,14 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
       Additionally the policy rules array will be sorted so that the order of the
       input array does not affect the output order.
     |||,
-    args=[d.arg('groupKinds', d.T.array)],
+    args=[d.arg('groupresources', d.T.array)],
   ),
-  createWatchRules(groupKinds):
+  createWatchRules(groupResources):
     local policyRule = k.rbac.v1.policyRule;
     local groups =
       std.set(std.map(
         function(x) x.group,
-        groupKinds
+        groupResources
       ));
     local rules = [
       policyRule.withApiGroups([group])
@@ -62,9 +62,9 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
           std.set(std.filterMap(
             function(x)
               x.group == group
-              && 'kinds' in x,
-            function(x) x.kinds,
-            groupKinds,
+              && 'resources' in x,
+            function(x) x.resources,
+            groupResources,
           ))
         )
       )

@@ -95,7 +95,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
     local definitions = [
       {
         group: '',
-        kinds: [
+        resources: [
           'configmaps',
           'secrets',
           'nodes',
@@ -112,7 +112,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
       },
       {
         group: 'apps',
-        kinds: [
+        resources: [
           'daemonsets',
           'deployments',
           'replicasets',
@@ -121,47 +121,47 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
       },
       {
         group: 'batch',
-        kinds: [
+        resources: [
           'cronjobs',
           'jobs',
         ],
       },
       {
         group: 'autoscaling',
-        kinds: ['horizontalpodautoscalers'],
+        resources: ['horizontalpodautoscalers'],
       },
       {
         group: 'policy',
-        kinds: ['poddisruptionbudgets'],
+        resources: ['poddisruptionbudgets'],
       },
       {
         group: 'certificates.k8s.io',
-        kinds: ['certificatesigningrequests'],
+        resources: ['certificatesigningrequests'],
       },
       {
         group: 'storage.k8s.io',
-        kinds: [
+        resources: [
           'storageclasses',
           'volumeattachments',
         ],
       },
       {
         group: 'admissionregistration.k8s.io',
-        kinds: [
+        resources: [
           'mutatingwebhookconfigurations',
           'validatingwebhookconfigurations',
         ],
       },
       {
         group: 'networking.k8s.io',
-        kinds: [
+        resources: [
           'networkpolicies',
           'ingresses',
         ],
       },
       {
         group: 'coordination.k8s.io',
-        kinds: ['leases'],
+        resources: ['leases'],
       },
     ];
 
@@ -198,7 +198,12 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
     local definitions = [
       {
         group: resource.groupVersionKind.group,
-        kinds: [resource.groupVersionKind.kind],
+        // FIXME: A policy rule expects the 'resources' name ('plural' from a CRD),
+        // making it impossible to generate the policy rules directly from
+        // customResourceStateMetrics.
+        // A wildcard gives KSM access to all resources in this group, which is a stopgap
+        // solution allowing us to move forward in testing this.
+        resources: ['*'],
       }
       for resource in customResourceStateMetrics.spec.resources
     ],
@@ -214,7 +219,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
     container+:
       container.withArgsMixin([
         '--custom-resource-state-only',
-        '--custom-resource-state-config-file="/crsmconfig/custommetrics.yaml"',
+        '--custom-resource-state-config-file=/crsmconfig/custommetrics.yaml',
       ]),
 
     local deployment = k.apps.v1.deployment,
