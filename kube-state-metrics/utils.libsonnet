@@ -46,7 +46,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
       Additionally the policy rules array will be sorted so that the order of the
       input array does not affect the output order.
     |||,
-    args=[d.arg('groupresources', d.T.array)],
+    args=[d.arg('groupResources', d.T.array)],
   ),
   createWatchRules(groupResources):
     local policyRule = k.rbac.v1.policyRule;

@@ -5,6 +5,10 @@ Helper functions related to Crossplane
 ## Index
 
 * [`fn statusResource(group, version, kind)`](#fn-statusresource)
+* [`fn statusResourceAlerts()`](#fn-statusresourcealerts)
+* [`obj alerts`](#obj-alerts)
+  * [`fn claimNotReadyAlert(reason='.*', pendingFor='15m')`](#fn-alertsclaimnotreadyalert)
+  * [`fn claimNotSyncedAlert(pendingFor='15m')`](#fn-alertsclaimnotsyncedalert)
 
 ## Fields
 
@@ -64,3 +68,39 @@ crossplane_status_synced{group="database.crossplane.example.org",kind="MySQLInst
 
 ```
 
+
+### fn statusResourceAlerts
+
+```ts
+statusResourceAlerts()
+```
+
+`statusResourceAlerts` provides a set of alerts for the metrics provided by `statusResource`
+
+The output of this function can be used as a prometheus monitoring mixin.
+
+
+### obj alerts
+
+
+#### fn alerts.claimNotReadyAlert
+
+```ts
+claimNotReadyAlert(reason='.*', pendingFor='15m')
+```
+
+`claimNotReadyAlert` provides an alert for metrics provided by `statusResource`
+
+`reason` can be set to differentiate between reasons as Create/Delete operations
+may take a while.
+
+
+Accepted values for `reason` are Unavailable, Creating, Deleting
+
+#### fn alerts.claimNotSyncedAlert
+
+```ts
+claimNotSyncedAlert(pendingFor='15m')
+```
+
+`claimNotSyncedAlert` provides an alert for metrics provided by `statusResource`

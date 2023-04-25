@@ -4,7 +4,7 @@ Helper functions to use in combination with kube-state-metrics
 
 ## Index
 
-* [`fn createWatchRules(groupKinds)`](#fn-createwatchrules)
+* [`fn createWatchRules(groupResources)`](#fn-createwatchrules)
 * [`fn scrapeConfig(namespace, name='kube-state-metrics')`](#fn-scrapeconfig)
 * [`fn sortRules(rules)`](#fn-sortrules)
 
@@ -13,10 +13,10 @@ Helper functions to use in combination with kube-state-metrics
 ### fn createWatchRules
 
 ```ts
-createWatchRules(groupKinds)
+createWatchRules(groupResources)
 ```
 
-`createWatchRules` turns an array of group/kinds into a set of policyRules with
+`createWatchRules` turns an array of group/resources into a set of policyRules with
 list/watch verbs.
 
 For example, this array:
@@ -25,7 +25,7 @@ For example, this array:
 [
   {
     group: 'apps',
-    kinds: ['daemonsets', 'deployments'],
+    resources: ['daemonsets', 'deployments'],
   }
 ]
 ```
