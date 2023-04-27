@@ -98,21 +98,21 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
     + resource.withMetrics(
       [
         metric.withName('status_%s_reason' % std.asciiLower(k))
-        + metric.withHelp('Conditions for %s - Reason' % k)
-        + metric.each.withType('StateSet')
-        + metric.each.stateSet.withLabelName('reason')
-        + metric.each.stateSet.withPath([
-          'status',
-          'conditions',
-          '[type=%s]' % k,
-          'reason',
-        ])
-        + metric.each.stateSet.withList(conditions[k])
+        + metric.withHelp('Reason for status type %s' % k)
+        + metric.each.withType('Info')
+        + metric.each.info.withLabelsFromPath({
+          reason: [
+            'status',
+            'conditions',
+            '[type=%s]' % k,
+            'reason',
+          ],
+        })
         for k in std.objectFields(conditions)
       ]
       + [
         metric.withName('status_%s' % std.asciiLower(k))
-        + metric.withHelp('Conditions for %s - Status' % k)
+        + metric.withHelp('Status conditions for type %s' % k)
         + metric.each.withType('StateSet')
         + metric.each.stateSet.withLabelName('status')
         + metric.each.stateSet.withPath([
@@ -189,7 +189,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
         message: |||
           {{$labels.customresource_kind}} Claim {{$labels.name}} is not in a ready state with reason {{$labels.reason}}.
 
-          Reasons for not being ready:
+          Common reasons for not being ready:
             Creating: resource is currently being created.
             Deleting: resource is currently being deleted.
             Unavailable: resource is not currently available for use. Unavailable should be
@@ -215,7 +215,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
         message: |||
           {{$labels.customresource_kind}} Claim {{$labels.name}} is not in a synced state with reason {{$labels.reason}}.
 
-          Reasons for not being synced:
+          Common reasons for not being synced:
             ReconcileError: Crossplane encountered an error while reconciling the resource.
               This could mean Crossplane was unable to update the resource to reflect its
               desired state, or that Crossplane was unable to determine the current actual
