@@ -56,8 +56,8 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
     ];
 
     local conditions = [
-      'Synced',
       'Ready',
+      'Synced',
     ];
 
     resource.withGroupVersionKind(
