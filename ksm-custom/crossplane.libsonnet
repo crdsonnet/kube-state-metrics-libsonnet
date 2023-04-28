@@ -150,7 +150,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
         'CrossplaneClaimNotReady',
         |||
           sum by (customresource_kind, name, namespace, cluster, status) (crossplane_status_ready{status="False"}==1)
-          * on (customresource_kind, name, namespace, cluster) group_left (reason) (crossplane_status_ready_reason{reason=~"%s"}==1)
+          * on (customresource_kind, name, namespace, cluster) group_left (reason) (crossplane_status_ready_reason{%s}==1)
         ||| % reason
       )
       + prometheusRules.rule.withFor(pendingFor)
