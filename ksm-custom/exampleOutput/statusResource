@@ -1,19 +1,14 @@
-# HELP crossplane_status_ready_reason Conditions for Ready - Reason
+# HELP crossplane_status_ready_reason Reason for status type Ready
 # TYPE crossplane_status_ready_reason gauge
 crossplane_status_ready_reason{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",reason="Available",version="v1alpha1"} 1
-crossplane_status_ready_reason{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",reason="Creating",version="v1alpha1"} 0
-crossplane_status_ready_reason{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",reason="Deleting",version="v1alpha1"} 0
-crossplane_status_ready_reason{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",reason="Unavailable",version="v1alpha1"} 0
-# HELP crossplane_status_synced_reason Conditions for Synced - Reason
+# HELP crossplane_status_synced_reason Reason for status type Synced
 # TYPE crossplane_status_synced_reason gauge
-crossplane_status_synced_reason{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",reason="ReconcileError",version="v1alpha1"} 0
-crossplane_status_synced_reason{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",reason="ReconcilePaused",version="v1alpha1"} 0
 crossplane_status_synced_reason{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",reason="ReconcileSuccess",version="v1alpha1"} 1
-# HELP crossplane_status_ready Conditions for Ready - Status
+# HELP crossplane_status_ready Status conditions for type Ready
 # TYPE crossplane_status_ready gauge
 crossplane_status_ready{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",status="False",version="v1alpha1"} 0
 crossplane_status_ready{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",status="True",version="v1alpha1"} 1
-# HELP crossplane_status_synced Conditions for Synced - Status
+# HELP crossplane_status_synced Status conditions for type Synced
 # TYPE crossplane_status_synced gauge
 crossplane_status_synced{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",status="False",version="v1alpha1"} 0
 crossplane_status_synced{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",status="True",version="v1alpha1"} 1

@@ -7,7 +7,7 @@ Helper functions related to Crossplane
 * [`fn statusResource(group, version, kind)`](#fn-statusresource)
 * [`fn statusResourceAlerts()`](#fn-statusresourcealerts)
 * [`obj alerts`](#obj-alerts)
-  * [`fn claimNotReadyAlert(reason='.*', pendingFor='15m')`](#fn-alertsclaimnotreadyalert)
+  * [`fn claimNotReadyAlert(reasonFilter='reason=~".*"', pendingFor='15m')`](#fn-alertsclaimnotreadyalert)
   * [`fn claimNotSyncedAlert(pendingFor='15m')`](#fn-alertsclaimnotsyncedalert)
 
 ## Fields
@@ -46,22 +46,17 @@ ksmCustom.new()
 Example of the metrics:
 
 ```
-# HELP crossplane_status_ready_reason Conditions for Ready - Reason
+# HELP crossplane_status_ready_reason Reason for status type Ready
 # TYPE crossplane_status_ready_reason gauge
 crossplane_status_ready_reason{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",reason="Available",version="v1alpha1"} 1
-crossplane_status_ready_reason{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",reason="Creating",version="v1alpha1"} 0
-crossplane_status_ready_reason{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",reason="Deleting",version="v1alpha1"} 0
-crossplane_status_ready_reason{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",reason="Unavailable",version="v1alpha1"} 0
-# HELP crossplane_status_synced_reason Conditions for Synced - Reason
+# HELP crossplane_status_synced_reason Reason for status type Synced
 # TYPE crossplane_status_synced_reason gauge
-crossplane_status_synced_reason{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",reason="ReconcileError",version="v1alpha1"} 0
-crossplane_status_synced_reason{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",reason="ReconcilePaused",version="v1alpha1"} 0
 crossplane_status_synced_reason{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",reason="ReconcileSuccess",version="v1alpha1"} 1
-# HELP crossplane_status_ready Conditions for Ready - Status
+# HELP crossplane_status_ready Status conditions for type Ready
 # TYPE crossplane_status_ready gauge
 crossplane_status_ready{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",status="False",version="v1alpha1"} 0
 crossplane_status_ready{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",status="True",version="v1alpha1"} 1
-# HELP crossplane_status_synced Conditions for Synced - Status
+# HELP crossplane_status_synced Status conditions for type Synced
 # TYPE crossplane_status_synced gauge
 crossplane_status_synced{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",status="False",version="v1alpha1"} 0
 crossplane_status_synced{group="database.crossplane.example.org",kind="MySQLInstance",name="my-application-db",namespace="my-application",status="True",version="v1alpha1"} 1
@@ -86,16 +81,15 @@ The output of this function can be used as a prometheus monitoring mixin.
 #### fn alerts.claimNotReadyAlert
 
 ```ts
-claimNotReadyAlert(reason='.*', pendingFor='15m')
+claimNotReadyAlert(reasonFilter='reason=~".*"', pendingFor='15m')
 ```
 
 `claimNotReadyAlert` provides an alert for metrics provided by `statusResource`
 
-`reason` can be set to differentiate between reasons as Create/Delete operations
-may take a while.
+ It might be useful to create separate alerts for different `reason`, for example
+ Create/Delete operations may take a while and should only alert when they are
+ stuck.
 
-
-Accepted values for `reason` are Unavailable, Creating, Deleting
 
 #### fn alerts.claimNotSyncedAlert
 

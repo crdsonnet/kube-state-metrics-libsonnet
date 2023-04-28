@@ -55,35 +55,10 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
       'False',
     ];
 
-    // Source: https://github.com/crossplane/crossplane-runtime/blob/v0.19.0/apis/common/v1/condition.go
-    local conditions = {
-      // ReconcileSuccess: Crossplane successfully completed the most recent
-      //   reconciliation of the resource.
-      // ReconcileError: Crossplane encountered an error while reconciling the resource.
-      //   This could mean Crossplane was unable to update the resource to reflect its
-      //   desired state, or that Crossplane was unable to determine the current actual
-      //   state of the resource.
-      // ReconcilePaused: reconciliation on the managed resource is paused via the pause
-      //   annotation.
-      Synced: [
-        'ReconcileSuccess',
-        'ReconcileError',
-        'ReconcilePaused',
-      ],
-
-      // Creating: resource is currently being created.
-      // Deleting: resource is currently being deleted.
-      // Available: resource is currently observed to be available for use.
-      // Unavailable: resource is not currently available for use. Unavailable should be
-      //   set only when Crossplane expects the resource to be available but knows it is
-      //   not, for example because its API reports it is unhealthy.
-      Ready: [
-        'Available',
-        'Unavailable',
-        'Creating',
-        'Deleting',
-      ],
-    };
+    local conditions = [
+      'Synced',
+      'Ready',
+    ];
 
     resource.withGroupVersionKind(
       group,
@@ -108,7 +83,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
             'reason',
           ],
         })
-        for k in std.objectFields(conditions)
+        for k in conditions
       ]
       + [
         metric.withName('status_%s' % std.asciiLower(k))
@@ -122,7 +97,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
           'status',
         ])
         + metric.each.stateSet.withList(status)
-        for k in std.objectFields(conditions)
+        for k in conditions
       ]
     ),
 
@@ -140,9 +115,8 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
           'crossplane',
           [
             // Differentiate between reasons as Create/Delete operations may take a while
-            root.alerts.claimNotReadyAlert('Creating', '1h'),
-            root.alerts.claimNotReadyAlert('Deleting', '1h'),
-            root.alerts.claimNotReadyAlert('Unavailable', '15m'),
+            root.alerts.claimNotReadyAlert('reason=~"(Creating|Deleting)"', '1h'),
+            root.alerts.claimNotReadyAlert('reason!~"(Creating|Deleting)"', '15m'),
             root.alerts.claimNotSyncedAlert('15m'),
           ]
         ),
@@ -154,20 +128,15 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
       |||
         `claimNotReadyAlert` provides an alert for metrics provided by `statusResource`
 
-        `reason` can be set to differentiate between reasons as Create/Delete operations
-        may take a while.
+         It might be useful to create separate alerts for different `reason`, for example
+         Create/Delete operations may take a while and should only alert when they are
+         stuck.
       |||,
       args=[
         d.arg(
-          'reason',
+          'reasonFilter',
           d.T.string,
-          default='.*',
-          enums=[
-            //'Available', // Cannot be combined with status="False"
-            'Unavailable',
-            'Creating',
-            'Deleting',
-          ]
+          default='reason=~".*"',
         ),
         d.arg(
           'pendingFor',
@@ -176,7 +145,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
         ),
       ],
     ),
-    claimNotReadyAlert(reason='.*', pendingFor='15m'):
+    claimNotReadyAlert(reason='reason=~".*"', pendingFor='15m'):
       prometheusRules.rule.newAlert(
         'CrossplaneClaimNotReady',
         |||
@@ -186,6 +155,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
       )
       + prometheusRules.rule.withFor(pendingFor)
       + prometheusRules.rule.withAnnotations({
+        // Source: https://github.com/crossplane/crossplane-runtime/blob/v0.19.0/apis/common/v1/condition.go
         message: |||
           {{$labels.customresource_kind}} Claim {{$labels.name}} is not in a ready state with reason {{$labels.reason}}.
 
@@ -212,6 +182,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
       )
       + prometheusRules.rule.withFor(pendingFor)
       + prometheusRules.rule.withAnnotations({
+        // Source: https://github.com/crossplane/crossplane-runtime/blob/v0.19.0/apis/common/v1/condition.go
         message: |||
           {{$labels.customresource_kind}} Claim {{$labels.name}} is not in a synced state with reason {{$labels.reason}}.
 
