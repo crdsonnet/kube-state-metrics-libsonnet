@@ -141,11 +141,16 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
         d.arg(
           'pendingFor',
           d.T.string,
-          default='15m'
+          default='15m',
+        ),
+        d.arg(
+          'severity',
+          d.T.string,
+          default='warning',
         ),
       ],
     ),
-    claimNotReadyAlert(reason='reason=~".*"', pendingFor='15m'):
+    claimNotReadyAlert(reason='reason=~".*"', pendingFor='15m', severity='warning'):
       prometheusRules.rule.newAlert(
         'CrossplaneClaimNotReady',
         |||
@@ -153,6 +158,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
           * on (customresource_kind, name, namespace, cluster) group_left (reason) (crossplane_status_ready_reason{%s}==1)
         ||| % reason
       )
+      + prometheusRules.rule.withLabels({ severity: severity })
       + prometheusRules.rule.withFor(pendingFor)
       + prometheusRules.rule.withAnnotations({
         // Source: https://github.com/crossplane/crossplane-runtime/blob/v0.19.0/apis/common/v1/condition.go
@@ -170,9 +176,12 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
 
     '#claimNotSyncedAlert':: d.fn(
       '`claimNotSyncedAlert` provides an alert for metrics provided by `statusResource`',
-      args=[d.arg('pendingFor', d.T.string, default='15m')],
+      args=[
+        d.arg('pendingFor', d.T.string, default='15m'),
+        d.arg('severity', d.T.string, default='warning'),
+      ],
     ),
-    claimNotSyncedAlert(pendingFor='15m'):
+    claimNotSyncedAlert(pendingFor='15m', severity='warning'):
       prometheusRules.rule.newAlert(
         'CrossplaneClaimNotSynced',
         |||
@@ -180,6 +189,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
           * on (customresource_kind, name, namespace, cluster) group_left (reason) (crossplane_status_synced_reason==1)
         |||
       )
+      + prometheusRules.rule.withLabels({ severity: severity })
       + prometheusRules.rule.withFor(pendingFor)
       + prometheusRules.rule.withAnnotations({
         // Source: https://github.com/crossplane/crossplane-runtime/blob/v0.19.0/apis/common/v1/condition.go

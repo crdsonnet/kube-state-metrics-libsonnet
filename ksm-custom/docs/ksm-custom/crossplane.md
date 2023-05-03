@@ -7,8 +7,8 @@ Helper functions related to Crossplane
 * [`fn statusResource(group, version, kind)`](#fn-statusresource)
 * [`fn statusResourceAlerts()`](#fn-statusresourcealerts)
 * [`obj alerts`](#obj-alerts)
-  * [`fn claimNotReadyAlert(reasonFilter='reason=~".*"', pendingFor='15m')`](#fn-alertsclaimnotreadyalert)
-  * [`fn claimNotSyncedAlert(pendingFor='15m')`](#fn-alertsclaimnotsyncedalert)
+  * [`fn claimNotReadyAlert(reasonFilter='reason=~".*"', pendingFor='15m', severity='warning')`](#fn-alertsclaimnotreadyalert)
+  * [`fn claimNotSyncedAlert(pendingFor='15m', severity='warning')`](#fn-alertsclaimnotsyncedalert)
 
 ## Fields
 
@@ -81,7 +81,7 @@ The output of this function can be used as a prometheus monitoring mixin.
 #### fn alerts.claimNotReadyAlert
 
 ```ts
-claimNotReadyAlert(reasonFilter='reason=~".*"', pendingFor='15m')
+claimNotReadyAlert(reasonFilter='reason=~".*"', pendingFor='15m', severity='warning')
 ```
 
 `claimNotReadyAlert` provides an alert for metrics provided by `statusResource`
@@ -94,7 +94,7 @@ claimNotReadyAlert(reasonFilter='reason=~".*"', pendingFor='15m')
 #### fn alerts.claimNotSyncedAlert
 
 ```ts
-claimNotSyncedAlert(pendingFor='15m')
+claimNotSyncedAlert(pendingFor='15m', severity='warning')
 ```
 
 `claimNotSyncedAlert` provides an alert for metrics provided by `statusResource`
