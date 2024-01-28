@@ -5,7 +5,7 @@ This project provides a jsonnet library for configuring
 on Kubernetes.
 
 The ksmCustom library provides a way to configure [Custom Resource State Metrics](https://github.com/kubernetes/kube-state-metrics/blob/main/docs/customresourcestate-metrics.md),
-it is generated at runtime from a JSON schema derived from the Go structs in
+it is generated from a JSON schema derived from the Go structs in
 kube-state-metrics. The kube-state-metrics library is manually curated.
 
 ## Docs

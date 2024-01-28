@@ -1,5 +1,12 @@
-ksm-custom/schema.json:
-	cd go && go run . > ../ksm-custom/schema.json
+generator/schema.json:
+	cd go && go run . > ../generator/schema.json
+
+ksm-custom/generated.libsonnet:
+	jsonnet \
+		-S \
+		-J generator/vendor \
+		generator/main.jsonnet \
+		| jsonnetfmt - > ksm-custom/generated.libsonnet
 
 .PHONY: docs
 docs:
