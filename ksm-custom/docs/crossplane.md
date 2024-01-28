@@ -7,16 +7,22 @@ Helper functions related to Crossplane
 * [`fn statusResource(group, version, kind)`](#fn-statusresource)
 * [`fn statusResourceAlerts()`](#fn-statusresourcealerts)
 * [`obj alerts`](#obj-alerts)
-  * [`fn claimNotReadyAlert(reasonFilter='reason=~".*"', pendingFor='15m', severity='warning')`](#fn-alertsclaimnotreadyalert)
-  * [`fn claimNotSyncedAlert(pendingFor='15m', severity='warning')`](#fn-alertsclaimnotsyncedalert)
+  * [`fn claimNotReadyAlert(reasonFilter="reason=~\".*\"", pendingFor="15m", severity="warning")`](#fn-alertsclaimnotreadyalert)
+  * [`fn claimNotSyncedAlert(pendingFor="15m", severity="warning")`](#fn-alertsclaimnotsyncedalert)
 
 ## Fields
 
 ### fn statusResource
 
-```ts
+```jsonnet
 statusResource(group, version, kind)
 ```
+
+PARAMETERS:
+
+* **group** (`string`)
+* **version** (`string`)
+* **kind** (`string`)
 
 This is a first attempt at gathering metrics for Crossplane resources using
 CustomResourceStateMetrics. This may change heavily, contributions and input
@@ -63,26 +69,34 @@ crossplane_status_synced{group="database.crossplane.example.org",kind="MySQLInst
 
 ```
 
-
 ### fn statusResourceAlerts
 
-```ts
+```jsonnet
 statusResourceAlerts()
 ```
+
 
 `statusResourceAlerts` provides a set of alerts for the metrics provided by `statusResource`
 
 The output of this function can be used as a prometheus monitoring mixin.
-
 
 ### obj alerts
 
 
 #### fn alerts.claimNotReadyAlert
 
-```ts
-claimNotReadyAlert(reasonFilter='reason=~".*"', pendingFor='15m', severity='warning')
+```jsonnet
+alerts.claimNotReadyAlert(reasonFilter="reason=~\".*\"", pendingFor="15m", severity="warning")
 ```
+
+PARAMETERS:
+
+* **reasonFilter** (`string`)
+   - default value: `"reason=~\".*\""`
+* **pendingFor** (`string`)
+   - default value: `"15m"`
+* **severity** (`string`)
+   - default value: `"warning"`
 
 `claimNotReadyAlert` provides an alert for metrics provided by `statusResource`
 
@@ -90,11 +104,17 @@ claimNotReadyAlert(reasonFilter='reason=~".*"', pendingFor='15m', severity='warn
  Create/Delete operations may take a while and should only alert when they are
  stuck.
 
-
 #### fn alerts.claimNotSyncedAlert
 
-```ts
-claimNotSyncedAlert(pendingFor='15m', severity='warning')
+```jsonnet
+alerts.claimNotSyncedAlert(pendingFor="15m", severity="warning")
 ```
+
+PARAMETERS:
+
+* **pendingFor** (`string`)
+   - default value: `"15m"`
+* **severity** (`string`)
+   - default value: `"warning"`
 
 `claimNotSyncedAlert` provides an alert for metrics provided by `statusResource`
