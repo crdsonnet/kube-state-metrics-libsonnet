@@ -1,5 +1,4 @@
 local ksmCustom = import './main.libsonnet';
-local crsm = ksmCustom.customResourceStateMetrics;  // shortcut
 
 // Example: rebuild example from docs with Jsonnet to validate the library
 
@@ -18,16 +17,16 @@ local crsm = ksmCustom.customResourceStateMetrics;  // shortcut
 //            gauge:
 //              path: [status, uptime]
 
-crsm.new()
-+ crsm.spec.withResources([
-  local resource = crsm.spec.resources;
+ksmCustom.new()
++ ksmCustom.spec.withResources([
+  local resource = ksmCustom.spec.resources;
   resource.withGroupVersionKind(
     'myteam.io',
     'foo',
     'v1',
   )
   + resource.withMetrics([
-    local metric = crsm.spec.resources.metrics;
+    local metric = ksmCustom.spec.resources.metrics;
     metric.withName('uptime')
     + metric.withHelp('Foo uptime')
     + metric.each.withType('Gauge')
