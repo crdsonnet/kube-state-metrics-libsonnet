@@ -15,21 +15,17 @@
           "$ref": "#/$defs/Metric"
         },
         "commonLabels": {
-          "patternProperties": {
-            ".*": {
-              "type": "string"
-            }
+          "additionalProperties": {
+            "type": "string"
           },
           "type": "object"
         },
         "labelsFromPath": {
-          "patternProperties": {
-            ".*": {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            }
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
           "type": "object"
         },
@@ -95,13 +91,11 @@
     "MetricGauge": {
       "properties": {
         "labelsFromPath": {
-          "patternProperties": {
-            ".*": {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            }
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
           "type": "object"
         },
@@ -137,13 +131,11 @@
     "MetricInfo": {
       "properties": {
         "labelsFromPath": {
-          "patternProperties": {
-            ".*": {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            }
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
           "type": "object"
         },
@@ -168,13 +160,11 @@
     "MetricStateSet": {
       "properties": {
         "labelsFromPath": {
-          "patternProperties": {
-            ".*": {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            }
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
           "type": "object"
         },
@@ -246,21 +236,17 @@
           "$ref": "#/$defs/GroupVersionKind"
         },
         "commonLabels": {
-          "patternProperties": {
-            ".*": {
-              "type": "string"
-            }
+          "additionalProperties": {
+            "type": "string"
           },
           "type": "object"
         },
         "labelsFromPath": {
-          "patternProperties": {
-            ".*": {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            }
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
           "type": "object"
         },
