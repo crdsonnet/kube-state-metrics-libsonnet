@@ -61,7 +61,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
 
         policyRules:: [],
         rbac:
-          (k { _config+: { namespace: namespace } }).util.rbac(
+          (k + { _config+: { namespace: namespace } }).util.rbac(
             name,
             self.policyRules
           ),
