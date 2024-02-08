@@ -103,6 +103,10 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
   ),
   withAutomaticSharding(replicas=2):: {
     local this = self,
+    replicas:: replicas,
+    config+: {
+      total_shards: this.replicas,
+    },
     config_file:: '$(POD_NAME).yml',
 
     local configMap = k.core.v1.configMap,
@@ -112,12 +116,9 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
         ['%s-%s.yml' % [this.name, i]]:
           k.util.manifestYaml(
             this.config
-            + {
-              total_shards: replicas,
-              shard: i,
-            }
+            + { shard: i }
           )
-        for i in std.range(0, replicas - 1)
+        for i in std.range(0, this.replicas - 1)
       }),
 
     local container = k.core.v1.container,
@@ -134,7 +135,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
 
     local statefulSet = k.apps.v1.statefulSet,
     statefulset:::
-      statefulSet.new(this.name, replicas, [self.container])
+      statefulSet.new(this.name, self.replicas, [self.container])
       + statefulSet.spec.withServiceName(this.name)
       + statefulSet.spec.template.spec.withServiceAccountName(
         self.rbac.service_account.metadata.name
@@ -155,6 +156,16 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
       + podDisruptionBudget.metadata.withLabels({ name: '%s-pdb' % this.name })
       + podDisruptionBudget.spec.selector.withMatchLabels({ name: this.name })
       + podDisruptionBudget.spec.withMaxUnavailable(1),
+  },
+
+  '#withReplicas':: d.fn(
+    |||
+      `withReplicas` sets the replicas, only applies to automatic sharding.
+    |||,
+    [d.arg('replicas', d.T.number)],
+  ),
+  withReplicas(replicas): {
+    replicas:: replicas,
   },
 
   '#withPriorityClass':: d.fn(
@@ -247,8 +258,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
 
   '#withKubernetesWatchPolicyRules':: d.fn(
     |||
-      `withKubernetesWatchPolicyRules` configures a bunch of policy rules to watch many\n
-      resources in Kubernetes.
+      `withKubernetesWatchPolicyRules` configures a bunch of policy rules to watch many resources in Kubernetes.
     |||,
   ),
   withKubernetesWatchPolicyRules()::

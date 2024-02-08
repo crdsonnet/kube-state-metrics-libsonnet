@@ -34,6 +34,7 @@ local kubeStateMetrics = import "github.com/crdsonnet/kube-state-metrics-libsonn
 * [`fn withPolicyRules(rules)`](#fn-withpolicyrules)
 * [`fn withPolicyRulesMixin(rules)`](#fn-withpolicyrulesmixin)
 * [`fn withPriorityClass(priorityClassName)`](#fn-withpriorityclass)
+* [`fn withReplicas(replicas)`](#fn-withreplicas)
 
 ## Fields
 
@@ -91,8 +92,7 @@ context, so it might not be necessary.
 withKubernetesWatchPolicyRules()
 ```
 
-`withKubernetesWatchPolicyRules` configures a bunch of policy rules to watch many\n
-resources in Kubernetes.
+`withKubernetesWatchPolicyRules` configures a bunch of policy rules to watch many resources in Kubernetes.
 
 
 ### fn withMetricAnnotationsAllowList
@@ -171,4 +171,13 @@ withPriorityClass(priorityClassName)
 ```
 
 `withPriorityClass` sets the priority class name for the workload.
+
+
+### fn withReplicas
+
+```ts
+withReplicas(replicas)
+```
+
+`withReplicas` sets the replicas, only applies to automatic sharding.
 
