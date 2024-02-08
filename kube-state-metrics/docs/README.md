@@ -5,7 +5,6 @@ instances on Kubernetes.
 
 This library is based on https://github.com/grafana/jsonnet-libs/tree/master/kube-state-metrics
 
-
 ## Install
 
 ```
@@ -18,13 +17,14 @@ jb install github.com/crdsonnet/kube-state-metrics-libsonnet/kube-state-metrics@
 local kubeStateMetrics = import "github.com/crdsonnet/kube-state-metrics-libsonnet/kube-state-metrics/main.libsonnet"
 ```
 
+
 ## Subpackages
 
-* [utils](kubeStateMetrics/utils.md)
+* [utils](utils.md)
 
 ## Index
 
-* [`fn new(namespace, name='kube-state-metrics', image='registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.8.2')`](#fn-new)
+* [`fn new(namespace, name="kube-state-metrics", image="registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.8.2")`](#fn-new)
 * [`fn withAutomaticSharding(replicas=2)`](#fn-withautomaticsharding)
 * [`fn withCustomResourceStateMetrics(customResourceStateMetrics)`](#fn-withcustomresourcestatemetrics)
 * [`fn withKubeRBACProxyPolicyRules()`](#fn-withkuberbacproxypolicyrules)
@@ -40,31 +40,46 @@ local kubeStateMetrics = import "github.com/crdsonnet/kube-state-metrics-libsonn
 
 ### fn new
 
-```ts
-new(namespace, name='kube-state-metrics', image='registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.8.2')
+```jsonnet
+new(namespace, name="kube-state-metrics", image="registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.8.2")
 ```
+
+PARAMETERS:
+
+* **namespace** (`string`)
+* **name** (`string`)
+   - default value: `"kube-state-metrics"`
+* **image** (`string`)
+   - default value: `"registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.8.2"`
 
 `new` provides initial manifest to deploy kube-state-metrics. By default it will
 configure a ClusterRole with policy rules list/watch a bunch of Kubernetes
 resources. The `namespace` is necessary to know up front provide a service account.
 
-
 ### fn withAutomaticSharding
 
-```ts
+```jsonnet
 withAutomaticSharding(replicas=2)
 ```
+
+PARAMETERS:
+
+* **replicas** (`number`)
+   - default value: `2`
 
 `withAutomaticSharding` configures kube-state-metrics with automatic sharding enabled, this will replace the Deployment with a Statefulset.
 
 This mode is incompatible with `withCustomResourceStateMetrics()`
 
-
 ### fn withCustomResourceStateMetrics
 
-```ts
+```jsonnet
 withCustomResourceStateMetrics(customResourceStateMetrics)
 ```
+
+PARAMETERS:
+
+* **customResourceStateMetrics** (`object`)
 
 `withCustomResourceStateMetrics` reconfigures kube-state-metrics to run in
 'custom-resource-state-only' mode. It will then only collect metrics as provided by
@@ -73,33 +88,36 @@ this object.
 
 Other modes such as automatic sharding are incompatible with this mode.
 
-
 ### fn withKubeRBACProxyPolicyRules
 
-```ts
+```jsonnet
 withKubeRBACProxyPolicyRules()
 ```
+
 
 `withKubeRBACProxyPolicyRules` configures an additional policy rule for
 subjectAccessReview, according to the Helm chart this is used for kube-rbac-proxy
 but it is also included in the kube-state-metrics example without additional
 context, so it might not be necessary.
 
-
 ### fn withKubernetesWatchPolicyRules
 
-```ts
+```jsonnet
 withKubernetesWatchPolicyRules()
 ```
 
-`withKubernetesWatchPolicyRules` configures a bunch of policy rules to watch many resources in Kubernetes.
 
+`withKubernetesWatchPolicyRules` configures a bunch of policy rules to watch many resources in Kubernetes.
 
 ### fn withMetricAnnotationsAllowList
 
-```ts
+```jsonnet
 withMetricAnnotationsAllowList(allowList)
 ```
+
+PARAMETERS:
+
+* **allowList** (`object`)
 
 `withMetricAnnotationsAllowList` configures a list of Kubernetes annotations keys that will be used in the resource' labels metric.
 
@@ -120,12 +138,15 @@ withMetricAnnotationsAllowList(allowList)
 }
 ```
 
-
 ### fn withMetricLabelsAllowList
 
-```ts
+```jsonnet
 withMetricLabelsAllowList(allowList)
 ```
+
+PARAMETERS:
+
+* **allowList** (`object`)
 
 `withMetricLabelsAllowList` configures a list of additional Kubernetes label keys that will be used in the resource' labels metric.
 
@@ -147,37 +168,48 @@ withMetricLabelsAllowList(allowList)
 }
 ```
 
-
 ### fn withPolicyRules
 
-```ts
+```jsonnet
 withPolicyRules(rules)
 ```
 
-`withPolicyRules` allows to configure an alternate set of policy rules.
+PARAMETERS:
 
+* **rules** (`array`)
+
+`withPolicyRules` allows to configure an alternate set of policy rules.
 ### fn withPolicyRulesMixin
 
-```ts
+```jsonnet
 withPolicyRulesMixin(rules)
 ```
 
-`withPolicyRulesMixin` allows to additional policy rules.
+PARAMETERS:
 
+* **rules** (`array`)
+
+`withPolicyRulesMixin` allows to additional policy rules.
 ### fn withPriorityClass
 
-```ts
+```jsonnet
 withPriorityClass(priorityClassName)
 ```
 
-`withPriorityClass` sets the priority class name for the workload.
+PARAMETERS:
 
+* **priorityClassName** (`string`)
+
+`withPriorityClass` sets the priority class name for the workload.
 
 ### fn withReplicas
 
-```ts
+```jsonnet
 withReplicas(replicas)
 ```
 
-`withReplicas` sets the replicas, only applies to automatic sharding.
+PARAMETERS:
 
+* **replicas** (`number`)
+
+`withReplicas` sets the replicas, only applies to automatic sharding.
