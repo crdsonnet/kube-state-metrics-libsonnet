@@ -133,7 +133,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
     deployment:: super.deployment,
 
     local statefulSet = k.apps.v1.statefulSet,
-    statefulset:
+    statefulset:::
       statefulSet.new(this.name, replicas, [self.container])
       + statefulSet.spec.withServiceName(this.name)
       + statefulSet.spec.template.spec.withServiceAccountName(
