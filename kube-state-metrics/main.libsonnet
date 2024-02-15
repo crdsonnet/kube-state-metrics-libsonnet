@@ -42,6 +42,8 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
         config_file:: 'config.yml',
         config_path:: '/etc/kube-state-metrics',
 
+        priority_class:: '',
+
         local configMap = k.core.v1.configMap,
         config_map:
           configMap.new('%s-config' % this.name)
@@ -78,7 +80,12 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
           )
           + deployment.spec.template.spec.securityContext.withRunAsUser(65534)
           + deployment.spec.template.spec.securityContext.withRunAsGroup(65534)
-          + deployment.configMapVolumeMount(self.config_map, self.config_path),
+          + deployment.configMapVolumeMount(self.config_map, self.config_path)
+          + (
+            if self.priority_class != ''
+            then deployment.spec.template.spec.withPriorityClassName(self.priority_class)
+            else {}
+          ),
 
         // Add hidden statefulset to allow mixins on both
         statefulset:: {},
@@ -148,7 +155,13 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
         + k.core.v1.podAffinityTerm.labelSelector.withMatchLabels({
           name: this.name,
         })
+      )
+      + (
+        if self.priority_class != ''
+        then statefulSet.spec.template.spec.withPriorityClassName(self.priority_class)
+        else {}
       ),
+
 
     local podDisruptionBudget = k.policy.v1.podDisruptionBudget,
     pdb:
@@ -175,10 +188,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
     [d.arg('priorityClassName', d.T.string)],
   ),
   withPriorityClass(priorityClassName):: {
-    deployment+:
-      k.apps.v1.deployment.spec.template.spec.withPriorityClassName(priorityClassName),
-    statefulset+:
-      k.apps.v1.statefulSet.spec.template.spec.withPriorityClassName(priorityClassName),
+    priority_class:: priorityClassName,
   },
 
   '#withMetricLabelsAllowList':: d.fn(
