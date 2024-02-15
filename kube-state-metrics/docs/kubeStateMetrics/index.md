@@ -1,3 +1,0 @@
-# kubeStateMetrics
-
-* [utils](utils.md)

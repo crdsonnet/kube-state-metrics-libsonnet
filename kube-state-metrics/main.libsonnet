@@ -32,20 +32,42 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
     name='kube-state-metrics',
     image='registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.8.2',
   ):: {
+        local this = self,
         name:: name,
+        config:: {
+          port: 8080,
+          telemetry_host: '0.0.0.0',
+          telemetry_port: 8081,
+        },
+        config_file:: 'config.yml',
+        config_path:: '/etc/kube-state-metrics',
+
+        priority_class:: '',
+
+        local configMap = k.core.v1.configMap,
+        config_map:
+          configMap.new('%s-config' % this.name)
+          + configMap.withData({
+            [this.config_file]:
+              k.util.manifestYaml(
+                this.config
+              ),
+          }),
 
         local container = k.core.v1.container,
         local containerPort = k.core.v1.containerPort,
+        local envVar = k.core.v1.envVar,
         container::
           container.new('kube-state-metrics', image)
           + container.withArgs([
-            '--port=8080',
-            '--telemetry-host=0.0.0.0',
-            '--telemetry-port=8081',
+            '--config=%s' % std.join('/', [
+              self.config_path,
+              self.config_file,
+            ]),
           ])
           + container.withPorts([
-            containerPort.new('ksm', 8080),
-            containerPort.new('self-metrics', 8081),
+            containerPort.new('ksm', self.config.port),
+            containerPort.new('self-metrics', self.config.telemetry_port),
           ])
           + k.util.resourcesRequests('50m', '50Mi')
           + k.util.resourcesLimits('250m', '150Mi'),
@@ -57,7 +79,16 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
             self.rbac.service_account.metadata.name
           )
           + deployment.spec.template.spec.securityContext.withRunAsUser(65534)
-          + deployment.spec.template.spec.securityContext.withRunAsGroup(65534),
+          + deployment.spec.template.spec.securityContext.withRunAsGroup(65534)
+          + deployment.configMapVolumeMount(self.config_map, self.config_path)
+          + (
+            if self.priority_class != ''
+            then deployment.spec.template.spec.withPriorityClassName(self.priority_class)
+            else {}
+          ),
+
+        // Add hidden statefulset to allow mixins on both
+        statefulset:: {},
 
         policyRules:: [],
         rbac:
@@ -68,6 +99,156 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
       }
       // default to Kubernetes Policy Rules
       + self.withKubernetesWatchPolicyRules(),
+
+  '#withAutomaticSharding':: d.fn(
+    |||
+      `withAutomaticSharding` configures kube-state-metrics with automatic sharding enabled, this will replace the Deployment with a Statefulset.
+
+      This mode is incompatible with `withCustomResourceStateMetrics()`
+    |||,
+    [d.arg('replicas', d.T.number, default=2)],
+  ),
+  withAutomaticSharding(replicas=2):: {
+    local this = self,
+    replicas:: replicas,
+    config+: {
+      total_shards: this.replicas,
+    },
+    config_file:: '$(POD_NAME).yml',
+
+    local configMap = k.core.v1.configMap,
+    config_map:
+      configMap.new('%s-config' % this.name)
+      + configMap.withData({
+        ['%s-%s.yml' % [this.name, i]]:
+          k.util.manifestYaml(
+            this.config
+            + { shard: i }
+          )
+        for i in std.range(0, this.replicas - 1)
+      }),
+
+    local container = k.core.v1.container,
+    container+:
+      container.withArgs([
+        '--config=%s' % std.join('/', [self.config_path, self.config_file]),
+      ])
+      + container.withEnvMixin([
+        k.core.v1.envVar.fromFieldPath('POD_NAME', 'metadata.name'),
+      ]),
+
+    // Hide deployment in favor of statefulset
+    deployment:: super.deployment,
+
+    local statefulSet = k.apps.v1.statefulSet,
+    statefulset:::
+      statefulSet.new(this.name, self.replicas, [self.container])
+      + statefulSet.spec.withServiceName(this.name)
+      + statefulSet.spec.template.spec.withServiceAccountName(
+        self.rbac.service_account.metadata.name
+      )
+      + statefulSet.spec.template.spec.securityContext.withRunAsUser(65534)
+      + statefulSet.spec.template.spec.securityContext.withRunAsGroup(65534)
+      + statefulSet.configMapVolumeMount(self.config_map, self.config_path)
+      + statefulSet.spec.template.spec.affinity.podAntiAffinity.withRequiredDuringSchedulingIgnoredDuringExecution(
+        k.core.v1.podAffinityTerm.withTopologyKey('kubernetes.io/hostname')
+        + k.core.v1.podAffinityTerm.labelSelector.withMatchLabels({
+          name: this.name,
+        })
+      )
+      + (
+        if self.priority_class != ''
+        then statefulSet.spec.template.spec.withPriorityClassName(self.priority_class)
+        else {}
+      ),
+
+
+    local podDisruptionBudget = k.policy.v1.podDisruptionBudget,
+    pdb:
+      podDisruptionBudget.new(this.name)
+      + podDisruptionBudget.metadata.withLabels({ name: '%s-pdb' % this.name })
+      + podDisruptionBudget.spec.selector.withMatchLabels({ name: this.name })
+      + podDisruptionBudget.spec.withMaxUnavailable(1),
+  },
+
+  '#withReplicas':: d.fn(
+    |||
+      `withReplicas` sets the replicas, only applies to automatic sharding.
+    |||,
+    [d.arg('replicas', d.T.number)],
+  ),
+  withReplicas(replicas): {
+    replicas:: replicas,
+  },
+
+  '#withPriorityClass':: d.fn(
+    |||
+      `withPriorityClass` sets the priority class name for the workload.
+    |||,
+    [d.arg('priorityClassName', d.T.string)],
+  ),
+  withPriorityClass(priorityClassName):: {
+    priority_class:: priorityClassName,
+  },
+
+  '#withMetricLabelsAllowList':: d.fn(
+    |||
+      `withMetricLabelsAllowList` configures a list of additional Kubernetes label keys that will be used in the resource' labels metric.
+
+      `allowList` looks like this:
+
+      ```jsonnet
+      {
+          // Structure:
+          //'<plural_resourcename>': [
+          //  '<labelname1>',
+          //  '<labelname2>',
+          //],
+
+          // Example:
+          nodes: [
+            'cloud.google.com/gke-nodepool',
+            'eks.amazonaws.com/nodegroup',
+          ],
+      }
+      ```
+    |||,
+    [d.arg('allowList', d.T.object)],
+  ),
+  withMetricLabelsAllowList(allowList):: {
+    config+:: {
+      labels_allow_list: allowList,
+    },
+  },
+
+  '#withMetricAnnotationsAllowList':: d.fn(
+    |||
+      `withMetricAnnotationsAllowList` configures a list of Kubernetes annotations keys that will be used in the resource' labels metric.
+
+      `allowList` looks like this:
+
+      ```jsonnet
+      {
+          // Structure:
+          //'<plural_resourcename>': [
+          //  '<labelname1>',
+          //  '<labelname2>',
+          //],
+
+          // Example:
+          nodes: [
+            'container.googleapis.com/instance_id',
+          ],
+      }
+      ```
+    |||,
+    [d.arg('allowList', d.T.object)],
+  ),
+  withMetricAnnotationsAllowList(allowList):: {
+    config+:: {
+      annotations_allow_list: allowList,
+    },
+  },
 
   '#withPolicyRules':: d.fn(
     '`withPolicyRules` allows to configure an alternate set of policy rules.',
@@ -87,8 +268,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
 
   '#withKubernetesWatchPolicyRules':: d.fn(
     |||
-      `withKubernetesWatchPolicyRules` configures a bunch of policy rules to watch many\n
-      resources in Kubernetes.
+      `withKubernetesWatchPolicyRules` configures a bunch of policy rules to watch many resources in Kubernetes.
     |||,
   ),
   withKubernetesWatchPolicyRules()::
@@ -191,6 +371,8 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
       'custom-resource-state-only' mode. It will then only collect metrics as provided by
       the `customResourceStateMetrics` object. Policy rules will be generated based on
       this object.
+
+      Other modes such as automatic sharding are incompatible with this mode.
     |||,
     args=[d.arg('customResourceStateMetrics', d.T.object)],
   ),
