@@ -7,6 +7,25 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
 
   '#':: d.package.newSub('crossplane', 'Helper functions related to Crossplane'),
 
+  '#fromGroupVersionKinds':: d.fn(
+    'Generate a new CustomResourceStateMetrics object from an array of GroupVersionKind tuples.',
+    args=[
+      d.arg('gvks', d.T.array),
+    ],
+  ),
+  fromGroupVersionKinds(gvks):
+    local sorted =
+      std.sort(
+        gvks,
+        function(obj) '%(group)s#%(version)s#%(kind)s' % obj
+      );
+
+    ksmCustom.new()
+    + ksmCustom.spec.withResources([
+      self.statusResource(gvk.group, gvk.version, gvk.kind)
+      for gvk in sorted
+    ]),
+
   '#statusResource':: d.fn(
     |||
       This is a first attempt at gathering metrics for Crossplane resources using
