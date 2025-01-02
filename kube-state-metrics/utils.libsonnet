@@ -9,8 +9,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
 
   '#createWatchRules':: d.fn(
     |||
-      `createWatchRules` turns an array of group/resources into a set of policyRules with
-      list/watch verbs.
+      `createWatchRules` turns an array of group/resources or group/plural tuples into a set of policyRules with list/watch verbs.
 
       For example, this array:
 
@@ -19,7 +18,11 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
         {
           group: 'apps',
           resources: ['daemonsets', 'deployments'],
-        }
+        },
+        {
+          group: 'batch',
+          plural: 'jobs',
+        },
       ]
       ```
 
@@ -50,22 +53,27 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
   ),
   createWatchRules(groupResources):
     local policyRule = k.rbac.v1.policyRule;
+
     local groups =
       std.set(std.map(
         function(x) x.group,
         groupResources
       ));
+
     local rules = [
       policyRule.withApiGroups([group])
       + policyRule.withResources(
-        std.flattenArrays(
-          std.set(std.filterMap(
-            function(x)
-              x.group == group
-              && 'resources' in x,
-            function(x) x.resources,
-            groupResources,
-          ))
+        std.set(
+          std.flattenArrays(
+            std.filterMap(
+              function(x)
+                x.group == group,
+              function(x)
+                std.prune([std.get(x, 'plural', null)])
+                + std.get(x, 'resources', []),
+              groupResources,
+            )
+          )
         )
       )
       + policyRule.withVerbs(['list', 'watch'])
