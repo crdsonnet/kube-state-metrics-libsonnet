@@ -138,5 +138,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
     },
   },
 
-  crossplane: (import './crossplane_deprecated.libsonnet'),
+  crossplane:
+    (import './crossplane_deprecated.libsonnet')
+    + (import './crossplane.libsonnet'),
 }
