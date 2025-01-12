@@ -52,12 +52,34 @@ local resource = ksmCustom.spec.resources;
           gvk.version,
           gvk.kind,
         )
-        + resource.labels.fromNamespacedResource()
         + resource.withMetrics([
           resource.metrics.common.conditionStatus(),
         ])
         for gvk in sorted
       ]),
+
+    '#withNamespaceFromClaimLabels':
+      d.fn(
+        |||
+          `withNamespaceFromClaimLabels` gets the name and namespace labels
+          from the crossplane.io/claim-{name,namespace} labels. This is
+          particularly useful when monitoring Managed Resources that were
+          created by a Composition.
+        |||
+      ),
+    withNamespaceFromClaimLabels(): {
+      spec+: {
+        resources:
+          std.map(
+            function(r)
+              r + resource.withLabelsFromPath({
+                name: ['metadata', 'labels', 'crossplane.io/claim-name'],
+                namespace: ['metadata', 'labels', 'crossplane.io/claim-namespace'],
+              }),
+            super.resources
+          ),
+      },
+    },
 
     alerts: {
       '#predefined':: d.fn(

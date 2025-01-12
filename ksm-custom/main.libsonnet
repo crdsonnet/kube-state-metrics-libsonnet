@@ -23,6 +23,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
       local resources = self,
       new(prefix, group, version, kind):
         self.withMetricNamePrefix(prefix)
+        + self.withNamespaceFromResource()
         + self.withGroupVersionKind(
           group,
           version,
@@ -43,19 +44,15 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
         + self.groupVersionKind.withVersion(version)
         + self.groupVersionKind.withKind(kind),
 
-      labels: {
-        fromNamespacedResource():
-          resources.withLabelsFromPath({
-            name: ['metadata', 'name'],
-            namespace: ['metadata', 'namespace'],
-          }),
-
-        fromCrossplaneClaimLabels():
-          resources.withLabelsFromPath({
-            name: ['metadata', 'labels', 'crossplane.io/claim-name'],
-            namespace: ['metadata', 'labels', 'crossplane.io/claim-namespace'],
-          }),
-      },
+      '#withNamespaceFromResource':
+        d.fn(
+          '`withNamespaceFromResource` gets the name and namespace labels from the resource metadata.'
+        ),
+      withNamespaceFromResource():
+        resources.withLabelsFromPath({
+          name: ['metadata', 'name'],
+          namespace: ['metadata', 'namespace'],
+        }),
 
       metrics+: {
         common+: {
