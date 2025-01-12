@@ -51,7 +51,7 @@ local resource = ksmCustom.spec.resources;
           gvk.kind,
         )
         + resource.withMetrics([
-          resource.metrics.common.conditionStatus(),
+          resource.metrics.predefined.conditionStatus(),
         ])
         for gvk in sorted
       ]),

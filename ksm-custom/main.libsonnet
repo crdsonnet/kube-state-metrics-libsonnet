@@ -65,7 +65,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
         }),
 
       metrics+: {
-        common+: {
+        predefined+: {
           '#conditionStatus'::
             d.fn(
               |||
@@ -93,7 +93,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
                     'Foo',
                   )
                   + spec.resources.withMetrics([
-                    spec.resources.metrics.common.conditionStatus(),
+                    spec.resources.metrics.predefined.conditionStatus(),
                   ]),
                 ])
                 ```
@@ -127,7 +127,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
 
   alerts: {
     '#':: d.package.newSub('alerts', 'Generic alerts for use with Prometheus'),
-    '#conditionStatus':: d.obj('Create alert rules for the metrics provided by `spec.metrics.common.conditionStatus`'),
+    '#conditionStatus':: d.obj('Create alert rules for the metrics provided by `spec.metrics.predefined.conditionStatus`'),
     conditionStatus: {
       '#new':: d.fn(
         |||
