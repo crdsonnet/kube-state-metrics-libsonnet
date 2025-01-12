@@ -21,6 +21,16 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
   spec+: {
     resources+: {
       local resources = self,
+      '#new':
+        d.fn(
+          '`new` creates a new resource with a metric name prefix and the group, version and kind of the resource to scrape, the scraped metrics will include labels for the name and namespace.',
+          args=[
+            d.arg('prefix', d.T.string),
+            d.arg('group', d.T.string),
+            d.arg('version', d.T.string),
+            d.arg('kind', d.T.string),
+          ],
+        ),
       new(prefix, group, version, kind):
         self.withMetricNamePrefix(prefix)
         + self.withNamespaceFromResource()
@@ -32,7 +42,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
 
       '#withGroupVersionKind'::
         d.fn(
-          'Set group, version and kind of the resource to scrape.',
+          '`withGroupVersionKind` sets the group, version and kind of the resource to scrape.',
           args=[
             d.arg('group', d.T.string),
             d.arg('version', d.T.string),
@@ -58,7 +68,44 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
         common+: {
           '#conditionStatus'::
             d.fn(
-              'Scrape CRs which expose status conditions according to https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#Condition',
+              |||
+                `conditionStatus` provides a metric configuration to scrape CRs which expose status conditions with https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#Condition
+
+                For example a resource with this status:
+
+                ```yaml
+                status:
+                  conditions:
+                    - lastTransitionTime: "2019-10-22T16:29:31Z"
+                      status: "True"
+                      type: Ready
+                ```
+
+                And a CRSM resource like this:
+
+                ```jsonnet
+                ksmCustom.new()
+                + ksmCustom.withResources([
+                  spec.resources.new(
+                    'myprefix',
+                    'myteam.io',
+                    'v1',
+                    'Foo',
+                  )
+                  + spec.resources.withMetrics([
+                    spec.resources.metrics.common.conditionStatus(),
+                  ]),
+                ])
+                ```
+
+                Would give a metric like this:
+
+                ```
+                myprefix_status{customresource_group="myteam.io", customresource_kind="Foo", customresource_version="v1", type="Ready"} 1.0
+                ```
+
+                Source of this idea: https://github.com/kubernetes/kube-state-metrics/blob/main/docs/metrics/extend/customresourcestate-metrics.md#example-for-status-conditions-on-kubernetes-controllers
+              |||
             ),
           conditionStatus():
             local metric = resources.metrics;
@@ -79,10 +126,12 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
   },
 
   alerts: {
+    '#':: d.package.newSub('alerts', 'Generic alerts for use with Prometheus'),
+    '#conditionStatus':: d.obj('Create alert rules for the metrics provided by `spec.metrics.common.conditionStatus`'),
     conditionStatus: {
       '#new':: d.fn(
         |||
-          `new` creates a new alert rule for the metrics provided by `spec.metrics.common.conditionStatus`
+          `new` creates a new alert rule.
 
           Arguments:
           - `prefix`: metricNamePrefix that is used to create the CRSM resource

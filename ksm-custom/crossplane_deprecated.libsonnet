@@ -5,7 +5,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
 {
   local root = self,
 
-  '#':: d.package.newSub('crossplane', 'Helper functions related to Crossplane'),
+  '#':: d.package.newSub('crossplane', 'DEPRECATION NOTICE: please use crossplane.stateMetrics subpackage.'),
 
   '#statusResource':: d.fn(
     |||

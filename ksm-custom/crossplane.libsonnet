@@ -7,8 +7,6 @@ local resource = ksmCustom.spec.resources;
 {
   local root = self,
 
-  '#':: d.package.newSub('crossplane', 'Helper functions related to Crossplane'),
-
   stateMetrics: {
     '#':: d.package.newSub('stateMetrics', 'Provide metrics and alerts to gather stateMetrics for Crossplane resources.'),
     local metricNamePrefix = 'crossplane_condition',
@@ -61,10 +59,7 @@ local resource = ksmCustom.spec.resources;
     '#withNamespaceFromClaimLabels':
       d.fn(
         |||
-          `withNamespaceFromClaimLabels` gets the name and namespace labels
-          from the crossplane.io/claim-{name,namespace} labels. This is
-          particularly useful when monitoring Managed Resources that were
-          created by a Composition.
+          `withNamespaceFromClaimLabels` gets the name and namespace labels from the crossplane.io/claim-{name,namespace} labels. This is particularly useful when monitoring Managed Resources that were created by a Composition.
         |||
       ),
     withNamespaceFromClaimLabels(): {
@@ -110,7 +105,7 @@ local resource = ksmCustom.spec.resources;
           |||
             `claimNotReadyAlert` provides an alert for crossplane.stateMetrics, it'll fire when the resource is unable to become Ready.
 
-             It might be useful to create separate alerts for different `reason`, for example Create/Delete operations may take a while and should only alert when they are stuck.
+            It might be useful to create separate alerts for different `reason`, for example Create/Delete operations may take a while and should only alert when they are stuck.
           |||,
           args=[
             d.arg(
