@@ -17,7 +17,8 @@ local ksm-custom = import "github.com/crdsonnet/ksm-custom-libsonnet/ksm-custom/
 
 ## Subpackages
 
-* [crossplane](crossplane.md)
+* [alerts](alerts.md)
+* [crossplane](crossplane/index.md)
 * [spec.resources](spec/resources/index.md)
 
 ## Index

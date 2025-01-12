@@ -46,6 +46,8 @@
     * [`fn withPathMixin(value)`](#fn-eachstatesetwithpathmixin)
     * [`fn withValueFrom(value)`](#fn-eachstatesetwithvaluefrom)
     * [`fn withValueFromMixin(value)`](#fn-eachstatesetwithvaluefrommixin)
+* [`obj predefined`](#obj-predefined)
+  * [`fn conditionStatus()`](#fn-predefinedconditionstatus)
 
 ## Fields
 
@@ -479,3 +481,50 @@ PARAMETERS:
 
 * **value** (`array`)
 
+
+### obj predefined
+
+
+#### fn predefined.conditionStatus
+
+```jsonnet
+predefined.conditionStatus()
+```
+
+
+`conditionStatus` provides a metric configuration to scrape CRs which expose status conditions with https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#Condition
+
+For example a resource with this status:
+
+```yaml
+status:
+  conditions:
+    - lastTransitionTime: "2019-10-22T16:29:31Z"
+      status: "True"
+      type: Ready
+```
+
+And a CRSM resource like this:
+
+```jsonnet
+ksmCustom.new()
++ ksmCustom.withResources([
+  spec.resources.new(
+    'myprefix',
+    'myteam.io',
+    'v1',
+    'Foo',
+  )
+  + spec.resources.withMetrics([
+    spec.resources.metrics.predefined.conditionStatus(),
+  ]),
+])
+```
+
+Would give a metric like this:
+
+```
+myprefix_status{customresource_group="myteam.io", customresource_kind="Foo", customresource_version="v1", type="Ready"} 1.0
+```
+
+Source of this idea: https://github.com/kubernetes/kube-state-metrics/blob/main/docs/metrics/extend/customresourcestate-metrics.md#example-for-status-conditions-on-kubernetes-controllers

@@ -1,6 +1,10 @@
 # crossplane
 
-Helper functions related to Crossplane
+DEPRECATION NOTICE: please use crossplane.stateMetrics subpackage.
+
+## Subpackages
+
+* [stateMetrics](stateMetrics.md)
 
 ## Index
 
