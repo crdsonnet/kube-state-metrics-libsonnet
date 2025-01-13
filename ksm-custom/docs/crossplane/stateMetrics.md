@@ -50,7 +50,7 @@ withNamespaceFromClaimLabels()
 ```
 
 
-`withNamespaceFromClaimLabels` gets the name and namespace labels from the crossplane.io/claim-{name,namespace} labels. This is particularly useful when monitoring Managed Resources that were created by a Composition.
+`withNamespaceFromClaimLabels` gets the claimName label and a namespace label from the crossplane.io/claim-{name,namespace} labels. This is particularly useful when monitoring Managed Resources that were created by a Composition.
 
 ### obj alerts
 
