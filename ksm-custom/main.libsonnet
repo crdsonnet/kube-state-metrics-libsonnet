@@ -71,6 +71,8 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
               |||
                 `conditionStatus` provides a metric configuration to scrape CRs which expose status conditions with https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#Condition
 
+                Note that the HELP text needs to be unique within a CRSM config to avoid sanitization logic by KSM: https://github.com/kubernetes/kube-state-metrics/issues/2453 This is done by appending the GroupVersionKind to the HELP text.
+
                 For example a resource with this status:
 
                 ```yaml
@@ -93,7 +95,11 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
                     'Foo',
                   )
                   + spec.resources.withMetrics([
-                    spec.resources.metrics.predefined.conditionStatus(),
+                    spec.resources.metrics.predefined.conditionStatus(
+                      'myteam.io',
+                      'v1',
+                      'Foo',
+                    ),
                   ]),
                 ])
                 ```
@@ -105,12 +111,17 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
                 ```
 
                 Source of this idea: https://github.com/kubernetes/kube-state-metrics/blob/main/docs/metrics/extend/customresourcestate-metrics.md#example-for-status-conditions-on-kubernetes-controllers
-              |||
+              |||,
+              args=[
+                d.arg('group', d.T.string),
+                d.arg('version', d.T.string),
+                d.arg('kind', d.T.string),
+              ]
             ),
-          conditionStatus():
+          conditionStatus(group, version, kind):
             local metric = resources.metrics;
             metric.withName('status')
-            + metric.withHelp('Status conditions')
+            + metric.withHelp('Status conditions for ' + std.join('/', [group, version, kind]))
             + metric.each.withType('Gauge')
             + metric.each.gauge.withPath(['status', 'conditions'])
             + metric.each.gauge.withLabelsFromPath({

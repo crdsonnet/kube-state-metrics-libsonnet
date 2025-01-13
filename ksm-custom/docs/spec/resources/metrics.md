@@ -47,7 +47,7 @@
     * [`fn withValueFrom(value)`](#fn-eachstatesetwithvaluefrom)
     * [`fn withValueFromMixin(value)`](#fn-eachstatesetwithvaluefrommixin)
 * [`obj predefined`](#obj-predefined)
-  * [`fn conditionStatus()`](#fn-predefinedconditionstatus)
+  * [`fn conditionStatus(group, version, kind)`](#fn-predefinedconditionstatus)
 
 ## Fields
 
@@ -488,11 +488,18 @@ PARAMETERS:
 #### fn predefined.conditionStatus
 
 ```jsonnet
-predefined.conditionStatus()
+predefined.conditionStatus(group, version, kind)
 ```
 
+PARAMETERS:
+
+* **group** (`string`)
+* **version** (`string`)
+* **kind** (`string`)
 
 `conditionStatus` provides a metric configuration to scrape CRs which expose status conditions with https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#Condition
+
+Note that the HELP text needs to be unique within a CRSM config to avoid sanitization logic by KSM: https://github.com/kubernetes/kube-state-metrics/issues/2453 This is done by appending the GroupVersionKind to the HELP text.
 
 For example a resource with this status:
 
@@ -516,7 +523,11 @@ ksmCustom.new()
     'Foo',
   )
   + spec.resources.withMetrics([
-    spec.resources.metrics.predefined.conditionStatus(),
+    spec.resources.metrics.predefined.conditionStatus(
+      'myteam.io',
+      'v1',
+      'Foo',
+    ),
   ]),
 ])
 ```
