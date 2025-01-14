@@ -1,0 +1,57 @@
+{
+   "kind": "CustomResourceStateMetrics",
+   "spec": {
+      "resources": [
+         {
+            "groupVersionKind": {
+               "group": "oss.grafana.crossplane.io",
+               "kind": "Dashboard",
+               "version": "*"
+            },
+            "labelsFromPath": {
+               "claimName": [
+                  "metadata",
+                  "labels",
+                  "crossplane.io/claim-name"
+               ],
+               "name": [
+                  "metadata",
+                  "name"
+               ],
+               "namespace": [
+                  "metadata",
+                  "labels",
+                  "crossplane.io/claim-namespace"
+               ]
+            },
+            "metricNamePrefix": "crossplane_condition",
+            "metrics": [
+               {
+                  "each": {
+                     "gauge": {
+                        "labelsFromPath": {
+                           "reason": [
+                              "reason"
+                           ],
+                           "type": [
+                              "type"
+                           ]
+                        },
+                        "path": [
+                           "status",
+                           "conditions"
+                        ],
+                        "valueFrom": [
+                           "status"
+                        ]
+                     },
+                     "type": "Gauge"
+                  },
+                  "help": "Status conditions for oss.grafana.crossplane.io/*/Dashboard",
+                  "name": "status"
+               }
+            ]
+         }
+      ]
+   }
+}

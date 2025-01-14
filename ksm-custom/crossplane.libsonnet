@@ -1,209 +1,174 @@
-local ksmCustom = import './main.libsonnet';
 local prometheusRules = import 'github.com/crdsonnet/prometheus-libsonnet/prometheusRules/main.libsonnet';
 local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
+
+local ksmCustom = import './main.libsonnet';
+local resource = ksmCustom.spec.resources;
 
 {
   local root = self,
 
-  '#':: d.package.newSub('crossplane', 'Helper functions related to Crossplane'),
+  stateMetrics: {
+    '#':: d.package.newSub('stateMetrics', 'Provide metrics and alerts to gather stateMetrics for Crossplane resources.'),
+    local metricNamePrefix = 'crossplane_condition',
+    '#new':: d.fn(
+      |||
+        Generate a new CustomResourceStateMetrics object from an array of GroupVersionKind tuples.
 
-  '#statusResource':: d.fn(
-    |||
-      This is a first attempt at gathering metrics for Crossplane resources using
-      CustomResourceStateMetrics. This may change heavily, contributions and input
-      much appreciated.
+        ```jsonnet
+        local gvks = [
+          {
+            group: 'database.crossplane.example.org',
+            kind: 'MySQLInstance',
+            version: 'v1alpha1',
+          },
+          {
+            group: 'database.crossplane.example.org',
+            kind: 'PostgreSQLInstance',
+            version: 'v1alpha1',
+          },
+        ];
 
-      ```jsonnet
-      local definitions = [
-        {
-          group: 'database.crossplane.example.org',
-          kind: 'MySQLInstance',
-          version: 'v1alpha1',
-        },
-        {
-          group: 'database.crossplane.example.org',
-          kind: 'PostgreSQLInstance',
-          version: 'v1alpha1',
-        },
-      ];
+        ksmCustom.crossplane.stateMetrics.new(gvks)
+        ```
+      |||,
+      args=[
+        d.arg('gvks', d.T.array),
+      ],
+    ),
+    new(gvks):
+      local sorted =
+        std.sort(
+          gvks,
+          function(obj) '%(group)s#%(version)s#%(kind)s' % obj
+        );
 
       ksmCustom.new()
       + ksmCustom.spec.withResources([
-        statusResource(def.group, def.version, def.kind)
-        for def in definitions
-      ])
-      ```
-
-      Example of the metrics:
-
-      ```
-      %s
-      ```
-    ||| % (importstr './exampleOutput/statusResource'),
-    args=[
-      d.arg('group', d.T.string),
-      d.arg('version', d.T.string),
-      d.arg('kind', d.T.string),
-    ],
-  ),
-  statusResource(group, version, kind):
-    local resource = ksmCustom.spec.resources;
-    local metric = ksmCustom.spec.resources.metrics;
-
-    local status = [
-      'True',
-      'False',
-    ];
-
-    local conditions = [
-      'Ready',
-      'Synced',
-    ];
-
-    resource.withGroupVersionKind(
-      group,
-      version,
-      kind,
-    )
-    + resource.withMetricNamePrefix('crossplane')
-    + resource.withLabelsFromPath({
-      name: ['metadata', 'name'],
-      namespace: ['metadata', 'namespace'],
-    })
-    + resource.withMetrics(
-      [
-        metric.withName('status_%s_reason' % std.asciiLower(k))
-        + metric.withHelp('Reason for status type %s' % k)
-        + metric.each.withType('Info')
-        + metric.each.info.withLabelsFromPath({
-          reason: [
-            'status',
-            'conditions',
-            '[type=%s]' % k,
-            'reason',
-          ],
-        })
-        for k in conditions
-      ]
-      + [
-        metric.withName('status_%s' % std.asciiLower(k))
-        + metric.withHelp('Status conditions for type %s' % k)
-        + metric.each.withType('StateSet')
-        + metric.each.stateSet.withLabelName('status')
-        + metric.each.stateSet.withPath([
-          'status',
-          'conditions',
-          '[type=%s]' % k,
-          'status',
+        resource.new(
+          metricNamePrefix,
+          gvk.group,
+          gvk.version,
+          gvk.kind,
+        )
+        + resource.withMetrics([
+          resource.metrics.predefined.conditionStatus(
+            gvk.group,
+            gvk.version,
+            gvk.kind,
+          ),
         ])
-        + metric.each.stateSet.withList(status)
-        for k in conditions
-      ]
-    ),
-
-  '#statusResourceAlerts':: d.fn(
-    |||
-      `statusResourceAlerts` provides a set of alerts for the metrics provided by `statusResource`
-
-      The output of this function can be used as a prometheus monitoring mixin.
-    |||,
-  ),
-  statusResourceAlerts(): {
-    prometheusAlerts+:
-      prometheusRules.withGroupsMixin([
-        prometheusRules.group.new(
-          'crossplane',
-          [
-            // Differentiate between reasons as Create/Delete operations may take a while
-            root.alerts.claimNotReadyAlert('reason=~"(Creating|Deleting)"', '1h'),
-            root.alerts.claimNotReadyAlert('reason!~"(Creating|Deleting)"', '15m'),
-            root.alerts.claimNotSyncedAlert('15m'),
-          ]
-        ),
+        for gvk in sorted
       ]),
-  },
 
-  alerts: {
-    '#claimNotReadyAlert':: d.fn(
-      |||
-        `claimNotReadyAlert` provides an alert for metrics provided by `statusResource`
-
-         It might be useful to create separate alerts for different `reason`, for example
-         Create/Delete operations may take a while and should only alert when they are
-         stuck.
-      |||,
-      args=[
-        d.arg(
-          'reasonFilter',
-          d.T.string,
-          default='reason=~".*"',
-        ),
-        d.arg(
-          'pendingFor',
-          d.T.string,
-          default='15m',
-        ),
-        d.arg(
-          'severity',
-          d.T.string,
-          default='warning',
-        ),
-      ],
-    ),
-    claimNotReadyAlert(reason='reason=~".*"', pendingFor='15m', severity='warning'):
-      prometheusRules.rule.newAlert(
-        'CrossplaneClaimNotReady',
+    '#withNamespaceFromClaimLabels':
+      d.fn(
         |||
-          sum by (customresource_kind, name, namespace, cluster, status) (crossplane_status_ready{status="False"}==1)
-          * on (customresource_kind, name, namespace, cluster) group_left (reason) (crossplane_status_ready_reason{%s}==1)
-        ||| % reason
-      )
-      + prometheusRules.rule.withLabels({ severity: severity })
-      + prometheusRules.rule.withFor(pendingFor)
-      + prometheusRules.rule.withAnnotations({
-        // Source: https://github.com/crossplane/crossplane-runtime/blob/v0.19.0/apis/common/v1/condition.go
-        message: |||
-          {{$labels.customresource_kind}} Claim {{$labels.name}} is not in a ready state with reason {{$labels.reason}}.
+          `withNamespaceFromClaimLabels` gets the claimName label and a namespace label from the crossplane.io/claim-{name,namespace} labels. This is particularly useful when monitoring Managed Resources that were created by a Composition.
+        |||
+      ),
+    withNamespaceFromClaimLabels(): {
+      spec+: {
+        resources:
+          std.map(
+            function(r)
+              r + resource.withLabelsFromPathMixin({
+                claimName: ['metadata', 'labels', 'crossplane.io/claim-name'],
+                namespace: ['metadata', 'labels', 'crossplane.io/claim-namespace'],
+              }),
+            super.resources
+          ),
+      },
+    },
 
-          Common reasons for not being ready:
-            Creating: resource is currently being created.
-            Deleting: resource is currently being deleted.
-            Unavailable: resource is not currently available for use. Unavailable should be
-              set only when Crossplane expects the resource to be available but knows it is
-              not, for example because its API reports it is unhealthy.
+    alerts: {
+      '#predefined':: d.fn(
+        |||
+          `predefined` provides a set of alerts for crossplane.stateMetrics.
+
+          The output of this function can be used as a prometheus monitoring mixin.
         |||,
-      }),
+      ),
+      predefined(): {
+        prometheusAlerts+:
+          prometheusRules.withGroupsMixin([
+            prometheusRules.group.new(
+              metricNamePrefix,
+              [
+                // Differentiate between reasons as Create/Delete operations may take a while
+                root.alerts.claimNotReadyAlert('reason=~"(Creating|Deleting)"', '1h'),
+                root.alerts.claimNotReadyAlert('reason!~"(Creating|Deleting)"', '15m'),
 
-    '#claimNotSyncedAlert':: d.fn(
-      '`claimNotSyncedAlert` provides an alert for metrics provided by `statusResource`',
-      args=[
-        d.arg('pendingFor', d.T.string, default='15m'),
-        d.arg('severity', d.T.string, default='warning'),
-      ],
-    ),
-    claimNotSyncedAlert(pendingFor='15m', severity='warning'):
-      prometheusRules.rule.newAlert(
-        'CrossplaneClaimNotSynced',
-        |||
-          sum by (customresource_kind, name, namespace, cluster, status) (crossplane_status_synced{status="False"}==1)
-          * on (customresource_kind, name, namespace, cluster) group_left (reason) (crossplane_status_synced_reason==1)
-        |||
-      )
-      + prometheusRules.rule.withLabels({ severity: severity })
-      + prometheusRules.rule.withFor(pendingFor)
-      + prometheusRules.rule.withAnnotations({
-        // Source: https://github.com/crossplane/crossplane-runtime/blob/v0.19.0/apis/common/v1/condition.go
-        message: |||
-          {{$labels.customresource_kind}} Claim {{$labels.name}} is not in a synced state with reason {{$labels.reason}}.
+                root.alerts.claimNotSyncedAlert('15m'),
+              ]
+            ),
+          ]),
+      },
 
-          Common reasons for not being synced:
-            ReconcileError: Crossplane encountered an error while reconciling the resource.
-              This could mean Crossplane was unable to update the resource to reflect its
-              desired state, or that Crossplane was unable to determine the current actual
-              state of the resource.
-            ReconcilePaused: reconciliation on the managed resource is paused via the pause
-              annotation.
-        |||,
-      }),
+      claim: {
+        '#claimNotReadyAlert':: d.fn(
+          |||
+            `claimNotReadyAlert` provides an alert for crossplane.stateMetrics, it'll fire when the resource is unable to become Ready.
+
+            It might be useful to create separate alerts for different `reason`, for example Create/Delete operations may take a while and should only alert when they are stuck.
+          |||,
+          args=[
+            d.arg(
+              'reasonFilter',
+              d.T.string,
+              default='reason=~".*"',
+            ),
+            d.arg(
+              'pendingFor',
+              d.T.string,
+              default='15m',
+            ),
+            d.arg(
+              'severity',
+              d.T.string,
+              default='warning',
+            ),
+          ],
+        ),
+        claimNotReadyAlert(reason='reason=~".*"', pendingFor='15m', severity='warning'):
+          ksmCustom.alerts.conditionStatus.new(metricNamePrefix, 'Ready', reason)
+          + ksmCustom.alerts.conditionStatus.withPendingFor(pendingFor)
+          + ksmCustom.alerts.conditionStatus.withSeverity(severity)
+          + ksmCustom.alerts.conditionStatus.withMessage(
+            // Source: https://github.com/crossplane/crossplane-runtime/blob/v0.19.0/apis/common/v1/condition.go
+            |||
+              Common reasons for not being ready:
+                Creating: resource is currently being created.
+                Deleting: resource is currently being deleted.
+                Unavailable: resource is not currently available for use. Unavailable should be
+                  set only when Crossplane expects the resource to be available but knows it is
+                  not, for example because its API reports it is unhealthy.
+            |||,
+          ),
+
+        '#claimNotSyncedAlert':: d.fn(
+          "`claimNotSyncedAlert` provides an alert for crossplane.stateMetrics, it'll fire when the resource is unable to be Synced.",
+          args=[
+            d.arg('pendingFor', d.T.string, default='15m'),
+            d.arg('severity', d.T.string, default='warning'),
+          ],
+        ),
+        claimNotSyncedAlert(pendingFor='15m', severity='warning'):
+          ksmCustom.alerts.conditionStatus.new(metricNamePrefix, 'Synced')
+          + ksmCustom.alerts.conditionStatus.withPendingFor(pendingFor)
+          + ksmCustom.alerts.conditionStatus.withSeverity(severity)
+          + ksmCustom.alerts.conditionStatus.withMessage(
+            // Source: https://github.com/crossplane/crossplane-runtime/blob/v0.19.0/apis/common/v1/condition.go
+            |||
+              Common reasons for not being synced:
+                ReconcileError: Crossplane encountered an error while reconciling the resource.
+                  This could mean Crossplane was unable to update the resource to reflect its
+                  desired state, or that Crossplane was unable to determine the current actual
+                  state of the resource.
+                ReconcilePaused: reconciliation on the managed resource is paused via the pause
+                  annotation.
+            |||,
+          ),
+      },
+    },
   },
 }

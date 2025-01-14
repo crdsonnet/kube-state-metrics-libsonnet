@@ -1,0 +1,6 @@
+# HELP crossplane_condition_status Status conditions for oss.grafana.crossplane.io/*/Dashboard
+# TYPE crossplane_condition_status gauge
+crossplane_condition_status{claimName="ingress-json",customresource_group="oss.grafana.crossplane.io",customresource_kind="Dashboard",customresource_version="v1alpha1",name="ingress-json-7lgkr-5st97",namespace="betterops-networking",reason="Available",type="Ready"} 1
+crossplane_condition_status{claimName="ingress-json",customresource_group="oss.grafana.crossplane.io",customresource_kind="Dashboard",customresource_version="v1alpha1",name="ingress-json-7lgkr-5st97",namespace="betterops-networking",reason="ReconcileSuccess",type="Synced"} 1
+crossplane_condition_status{claimName="kubelet-json",customresource_group="oss.grafana.crossplane.io",customresource_kind="Dashboard",customresource_version="v1alpha1",name="kubelet-json-pqwdn-7blkp",namespace="betterops-platform-infrastructure",reason="Available",type="Ready"} 1
+crossplane_condition_status{claimName="kubelet-json",customresource_group="oss.grafana.crossplane.io",customresource_kind="Dashboard",customresource_version="v1alpha1",name="kubelet-json-pqwdn-7blkp",namespace="betterops-platform-infrastructure",reason="ReconcileSuccess",type="Synced"} 1

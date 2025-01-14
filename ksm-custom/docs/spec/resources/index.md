@@ -8,6 +8,7 @@
 
 ## Index
 
+* [`fn new(prefix, group, version, kind)`](#fn-new)
 * [`fn withCommonLabels(value)`](#fn-withcommonlabels)
 * [`fn withCommonLabelsMixin(value)`](#fn-withcommonlabelsmixin)
 * [`fn withErrorLogV(value)`](#fn-witherrorlogv)
@@ -18,6 +19,7 @@
 * [`fn withMetricNamePrefix(value)`](#fn-withmetricnameprefix)
 * [`fn withMetrics(value)`](#fn-withmetrics)
 * [`fn withMetricsMixin(value)`](#fn-withmetricsmixin)
+* [`fn withNamespaceFromResource()`](#fn-withnamespacefromresource)
 * [`fn withResourcePlural(value)`](#fn-withresourceplural)
 * [`obj groupVersionKind`](#obj-groupversionkind)
   * [`fn withGroup(value)`](#fn-groupversionkindwithgroup)
@@ -26,6 +28,20 @@
 
 ## Fields
 
+### fn new
+
+```jsonnet
+new(prefix, group, version, kind)
+```
+
+PARAMETERS:
+
+* **prefix** (`string`)
+* **group** (`string`)
+* **version** (`string`)
+* **kind** (`string`)
+
+`new` creates a new resource with a metric name prefix and the group, version and kind of the resource to scrape, the scraped metrics will include labels for the name and namespace.
 ### fn withCommonLabels
 
 ```jsonnet
@@ -71,7 +87,7 @@ PARAMETERS:
 * **version** (`string`)
 * **kind** (`string`)
 
-Set group, version and kind of the resource to scrape.
+`withGroupVersionKind` sets the group, version and kind of the resource to scrape.
 ### fn withGroupVersionKindMixin
 
 ```jsonnet
@@ -138,6 +154,14 @@ PARAMETERS:
 * **value** (`array`)
 
 
+### fn withNamespaceFromResource
+
+```jsonnet
+withNamespaceFromResource()
+```
+
+
+`withNamespaceFromResource` gets the name and namespace labels from the resource metadata.
 ### fn withResourcePlural
 
 ```jsonnet
