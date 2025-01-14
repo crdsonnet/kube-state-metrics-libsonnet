@@ -24,18 +24,20 @@ PARAMETERS:
 
 * **gvks** (`array`)
 
-Generate a new CustomResourceStateMetrics object from an array of GroupVersionKind tuples.
+Generate a new CustomResourceStateMetrics object from an array of GroupVersionKind tuples. Adding the `plural` key will allow the kube-state-metrics library to automatically generate the policy rules.
 
 ```jsonnet
 local gvks = [
   {
     group: 'database.crossplane.example.org',
     kind: 'MySQLInstance',
+    plural: 'mysqlinstances',
     version: 'v1alpha1',
   },
   {
     group: 'database.crossplane.example.org',
     kind: 'PostgreSQLInstance',
+    plural: 'postgresqlinstances',
     version: 'v1alpha1',
   },
 ];
