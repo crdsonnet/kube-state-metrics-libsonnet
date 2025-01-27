@@ -24,6 +24,7 @@
 * [`obj groupVersionKind`](#obj-groupversionkind)
   * [`fn withGroup(value)`](#fn-groupversionkindwithgroup)
   * [`fn withKind(value)`](#fn-groupversionkindwithkind)
+  * [`fn withPlural(plural)`](#fn-groupversionkindwithplural)
   * [`fn withVersion(value)`](#fn-groupversionkindwithversion)
 
 ## Fields
@@ -197,6 +198,20 @@ PARAMETERS:
 
 * **value** (`string`)
 
+
+#### fn groupVersionKind.withPlural
+
+```jsonnet
+groupVersionKind.withPlural(plural)
+```
+
+PARAMETERS:
+
+* **plural** (`string`)
+
+`withPlural` adds the plural of the GroupVersionKind to a hidden field. It is not used by CustomResourceStateMetrics but can be used to generate PolicyRule objects.
+
+See `withCustomResourceStateMetrics()` on the kube-state-metrics library in this repository.
 
 #### fn groupVersionKind.withVersion
 

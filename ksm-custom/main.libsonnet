@@ -54,6 +54,25 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
         + self.groupVersionKind.withVersion(version)
         + self.groupVersionKind.withKind(kind),
 
+      groupVersionKind+: {
+        '#withPlural'::
+          d.fn(
+            |||
+              `withPlural` adds the plural of the GroupVersionKind to a hidden field. It is not used by CustomResourceStateMetrics but can be used to generate PolicyRule objects.
+
+              See `withCustomResourceStateMetrics()` on the kube-state-metrics library in this repository.
+            |||,
+            args=[
+              d.arg('plural', d.T.string),
+            ],
+          ),
+        withPlural(plural): {
+          groupVersionKind+: {
+            plural:: plural,
+          },
+        },
+      },
+
       '#withNamespaceFromResource':
         d.fn(
           '`withNamespaceFromResource` gets the name and namespace labels from the resource metadata.'

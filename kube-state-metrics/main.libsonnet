@@ -380,17 +380,23 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
     local definitions = [
       {
         group: resource.groupVersionKind.group,
-        // FIXME: A policy rule expects the 'resources' name ('plural' from a CRD),
-        // making it impossible to generate the policy rules directly from
-        // customResourceStateMetrics.
-        // A wildcard gives KSM access to all resources in this group, which is a stopgap
-        // solution allowing us to move forward in testing this.
-        resources: ['*'],
+        // NOTE: A policy rule expects the 'resources' name ('plural' from a CRD),
+        // making it impossible to generate the policy rules directly from customResourceStateMetrics.
+        // A wildcard gives KSM access to all resources in this group, which is a stopgap solution to make this working.
+        // The 'plural' field is generally not part of the CustomResourceStateMetrics object but it can be added by calling `resource.groupVersionKind.withPlural()` on th ksmCustom library in this repository.
+        resources: [std.get(resource.groupVersionKind, 'plural', '*')],
       }
       for resource in customResourceStateMetrics.spec.resources
     ],
 
-    policyRules:: utils.createWatchRules(definitions),
+
+    // kube-state-metrics needs list and watch permissions granted to customresourcedefinitions.apiextensions.k8s.io to gather metrics from custom resources.
+    local crdrule = {
+      group: 'apiextensions.k8s.io',
+      resources: ['customresourcedefinitions'],
+    },
+
+    policyRules:: utils.createWatchRules(definitions + [crdrule]),
 
     CRSMConfigMap:
       k.core.v1.configMap.new(self.name, {

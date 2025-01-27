@@ -12,18 +12,20 @@ local resource = ksmCustom.spec.resources;
     local metricNamePrefix = 'crossplane_condition',
     '#new':: d.fn(
       |||
-        Generate a new CustomResourceStateMetrics object from an array of GroupVersionKind tuples.
+        Generate a new CustomResourceStateMetrics object from an array of GroupVersionKind tuples. Adding the `plural` key will allow the kube-state-metrics library to automatically generate the policy rules.
 
         ```jsonnet
         local gvks = [
           {
             group: 'database.crossplane.example.org',
             kind: 'MySQLInstance',
+            plural: 'mysqlinstances',
             version: 'v1alpha1',
           },
           {
             group: 'database.crossplane.example.org',
             kind: 'PostgreSQLInstance',
+            plural: 'postgresqlinstances',
             version: 'v1alpha1',
           },
         ];
@@ -42,14 +44,19 @@ local resource = ksmCustom.spec.resources;
           function(obj) '%(group)s#%(version)s#%(kind)s' % obj
         );
 
+
       ksmCustom.new()
       + ksmCustom.spec.withResources([
+        local plural = std.get(gvk, 'plural', '');
         resource.new(
           metricNamePrefix,
           gvk.group,
           gvk.version,
           gvk.kind,
         )
+        + (if plural != ''
+           then resource.groupVersionKind.withPlural(plural)
+           else {})
         + resource.withMetrics([
           resource.metrics.predefined.conditionStatus(
             gvk.group,
