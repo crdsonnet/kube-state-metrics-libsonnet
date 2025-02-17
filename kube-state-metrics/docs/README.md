@@ -35,6 +35,7 @@ local kubeStateMetrics = import "github.com/crdsonnet/kube-state-metrics-libsonn
 * [`fn withPolicyRulesMixin(rules)`](#fn-withpolicyrulesmixin)
 * [`fn withPriorityClass(priorityClassName)`](#fn-withpriorityclass)
 * [`fn withReplicas(replicas)`](#fn-withreplicas)
+* [`fn withServiceAccountMetrics(metrics=["kube_serviceaccount_info"], annotationsAllowList=["*"], labelsAllowList=["*"])`](#fn-withserviceaccountmetrics)
 
 ## Fields
 
@@ -213,3 +214,22 @@ PARAMETERS:
 * **replicas** (`number`)
 
 `withReplicas` sets the replicas, only applies to automatic sharding.
+
+### fn withServiceAccountMetrics
+
+```jsonnet
+withServiceAccountMetrics(metrics=["kube_serviceaccount_info"], annotationsAllowList=["*"], labelsAllowList=["*"])
+```
+
+PARAMETERS:
+
+* **metrics** (`array`)
+   - default value: `["kube_serviceaccount_info"]`
+* **annotationsAllowList** (`array`)
+   - default value: `["*"]`
+* **labelsAllowList** (`array`)
+   - default value: `["*"]`
+
+`withServiceAccountMetrics` enables scraping [ServiceAccount metrics](https://github.com/kubernetes/kube-state-metrics/blob/main/docs/metrics/auth/serviceaccount-metrics.md).
+
+`annotationsAllowList` and `labelsAllowList` is only applied along with respective `metrics`.

@@ -3,6 +3,8 @@ local k = import 'github.com/grafana/jsonnet-libs/ksonnet-util/kausal.libsonnet'
 local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
 
 {
+  local root = self,
+
   '#':: d.package.new(
     'kubeStateMetrics',
     help=|||
@@ -34,10 +36,18 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
   ):: {
         local this = self,
         name:: name,
+
+        local defaultResources = utils.getResources(root.withKubernetesWatchPolicyRules().policyRules),
+        local resources = utils.getResources(this.policyRules),
         config:: {
           port: 8080,
           telemetry_host: '0.0.0.0',
           telemetry_port: 8081,
+          // Only include 'resources' when different from the default set
+          [if resources != defaultResources then 'resources']: {
+            [resource]: {}
+            for resource in resources
+          },
         },
         config_file:: 'config.yml',
         config_path:: '/etc/kube-state-metrics',
@@ -347,6 +357,41 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
 
     self.withPolicyRulesMixin(utils.createWatchRules(definitions)),
 
+
+  '#withServiceAccountMetrics':: d.fn(
+    |||
+      `withServiceAccountMetrics` enables scraping [ServiceAccount metrics](https://github.com/kubernetes/kube-state-metrics/blob/main/docs/metrics/auth/serviceaccount-metrics.md).
+
+      `annotationsAllowList` and `labelsAllowList` is only applied along with respective `metrics`.
+    |||,
+    args=[
+      d.arg('metrics', d.T.array, default=['kube_serviceaccount_info']),
+      d.arg('annotationsAllowList', d.T.array, default=['*']),
+      d.arg('labelsAllowList', d.T.array, default=['*']),
+    ]
+  ),
+  withServiceAccountMetrics(
+    metrics=['kube_serviceaccount_info'],
+    annotations=['*'],
+    labels=['*'],
+  )::
+    self.withPolicyRulesMixin(
+      utils.createWatchRules([{
+        group: '',
+        resources: ['serviceaccounts'],
+      }])
+    )
+    + {
+      config+:: {
+        metric_opt_in_list+: {
+          [metric]: {}
+          for metric in metrics
+        },
+        [if std.member(metrics, 'kube_serviceaccount_annotations') then 'annotations_allow_list']+: annotations,
+        [if std.member(metrics, 'kube_serviceaccount_labels') then 'labels_allow_list']+: labels,
+      },
+    },
+
   '#withKubeRBACProxyPolicyRules':: d.fn(
     |||
       `withKubeRBACProxyPolicyRules` configures an additional policy rule for
@@ -415,5 +460,5 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
       deployment.configMapVolumeMount(self.CRSMConfigMap, '/crsmconfig'),
   },
 
-  utils: (import './utils.libsonnet'),
+  utils: utils,
 }
