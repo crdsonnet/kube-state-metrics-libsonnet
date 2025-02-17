@@ -441,6 +441,9 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
       resources: ['customresourcedefinitions'],
     },
 
+    // remove `resources` from config as it is dynamic when using CRSM
+    config:: std.mergePatch(super.config, { resources: null }),
+
     policyRules:: utils.createWatchRules(definitions + [crdrule]),
 
     CRSMConfigMap:
