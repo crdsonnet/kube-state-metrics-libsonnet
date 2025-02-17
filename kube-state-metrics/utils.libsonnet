@@ -151,4 +151,16 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
       },
     ],
   },
+
+  '#getResourcesFromRules':: d.fn(
+    '`getResourcesFromRules` returns an array of resources for the given policy rules.',
+    args=[d.arg('rules', d.T.array)],
+  ),
+  getResourcesFromRules(rules):
+    std.set(
+      std.flatMap(
+        function(rule) rule.resources,
+        rules,
+      )
+    ),
 }

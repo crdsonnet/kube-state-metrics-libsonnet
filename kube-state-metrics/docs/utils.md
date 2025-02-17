@@ -5,6 +5,7 @@ Helper functions to use in combination with kube-state-metrics
 ## Index
 
 * [`fn createWatchRules(groupResources)`](#fn-createwatchrules)
+* [`fn getResourcesFromRules(rules)`](#fn-getresourcesfromrules)
 * [`fn scrapeConfig(namespace, name="kube-state-metrics")`](#fn-scrapeconfig)
 * [`fn sortRules(rules)`](#fn-sortrules)
 
@@ -57,6 +58,17 @@ Will result in these policyRules:
 Additionally the policy rules array will be sorted so that the order of the
 input array does not affect the output order.
 
+### fn getResourcesFromRules
+
+```jsonnet
+getResourcesFromRules(rules)
+```
+
+PARAMETERS:
+
+* **rules** (`array`)
+
+`getResourcesFromRules` returns an array of resources for the given policy rules.
 ### fn scrapeConfig
 
 ```jsonnet
