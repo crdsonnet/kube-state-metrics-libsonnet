@@ -37,8 +37,8 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
         local this = self,
         name:: name,
 
-        local defaultResources = utils.getResources(root.withKubernetesWatchPolicyRules().policyRules),
-        local resources = utils.getResources(this.policyRules),
+        local defaultResources = utils.getResourcesFromRules(root.withKubernetesWatchPolicyRules().policyRules),
+        local resources = utils.getResourcesFromRules(this.policyRules),
         config:: {
           port: 8080,
           telemetry_host: '0.0.0.0',
@@ -356,7 +356,6 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
     ];
 
     self.withPolicyRulesMixin(utils.createWatchRules(definitions)),
-
 
   '#withServiceAccountMetrics':: d.fn(
     |||
