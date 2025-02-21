@@ -379,14 +379,15 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
       }])
     )
     + {
-      local superconfig = super.config,
       config+:: {
         metric_opt_in_list+: {
           [metric]: {}
           for metric in metrics
         },
-        [if 'annotations_allow_list' in superconfig then 'annotations_allow_list']+: annotationsAllowList,
-        [if 'labels_allow_list' in superconfig then 'labels_allow_list']+: labelsAllowList,
+        [if annotationsAllowList != [] then 'annotations_allow_list']+:
+          { serviceaccounts+: annotationsAllowList },
+        [if labelsAllowList != [] then 'labels_allow_list']+:
+          { serviceaccounts+: labelsAllowList },
       },
     },
 
