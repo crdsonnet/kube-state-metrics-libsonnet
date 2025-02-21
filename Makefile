@@ -1,10 +1,10 @@
-generator/schema.json:
-	cd go && go run . > ../generator/schema.json
+generator/customresourcestate.json:
+	cd go && go run . > ../generator/customresourcestate.json
 
 ksm-custom/generated.libsonnet:
 	jsonnet -S \
 		-J generator/vendor \
-		generator/main.jsonnet \
+		generator/gen-ksm-custom.jsonnet \
 		| jsonnetfmt --no-use-implicit-plus - \
 		> ksm-custom/generated.libsonnet
 
