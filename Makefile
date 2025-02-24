@@ -1,6 +1,8 @@
 .PHONY: generate_schemas
 generate_schemas: go/main.go
+	ln -sfn $(shell go env GOPATH)/pkg/mod/k8s.io/kube-state-metrics/v2@v2.10.1 go/v2
 	cd go && go run .
+
 
 generator/customresourcestate.json: generate_schemas
 	mv go/customresourcestate.json generator/customresourcestate.json
