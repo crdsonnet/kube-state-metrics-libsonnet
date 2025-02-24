@@ -1,4 +1,5 @@
 local utils = import './utils.libsonnet';
+local config = import 'github.com/crdsonnet/kube-state-metrics-libsonnet/ksm-config/main.libsonnet';
 local k = import 'github.com/grafana/jsonnet-libs/ksonnet-util/kausal.libsonnet';
 local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
 
@@ -37,18 +38,18 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
         local this = self,
         name:: name,
 
-        local defaultResources = utils.getResourcesFromRules(root.withKubernetesWatchPolicyRules().policyRules),
-        local resources = utils.getResourcesFromRules(this.policyRules),
-        config:: {
-          port: 8080,
-          telemetry_host: '0.0.0.0',
-          telemetry_port: 8081,
-          // Only include 'resources' when different from the default set
-          [if resources != defaultResources then 'resources']: {
-            [resource]: {}
-            for resource in resources
-          },
-        },
+        config::
+          config.withPort(8080)
+          + config.withTelemetryHost('0.0.0.0')
+          + config.withTelemetryPort(8081)
+          + (
+            local defaultResources = utils.getResourcesFromRules(root.withKubernetesWatchPolicyRules().policyRules);
+            local resources = utils.getResourcesFromRules(this.policyRules);
+            // Only include 'resources' when different from the default set
+            if resources != defaultResources
+            then config.withResources(resources)
+            else {}
+          ),
         config_file:: 'config.yml',
         config_path:: '/etc/kube-state-metrics',
 
@@ -121,9 +122,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
   withAutomaticSharding(replicas=2):: {
     local this = self,
     replicas:: replicas,
-    config+: {
-      total_shards: this.replicas,
-    },
+    config+: config.withTotalShards(this.replicas),
     config_file:: '$(POD_NAME).yml',
 
     local configMap = k.core.v1.configMap,
@@ -133,7 +132,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
         ['%s-%s.yml' % [this.name, i]]:
           k.util.manifestYaml(
             this.config
-            + { shard: i }
+            + config.withShard(i)
           )
         for i in std.range(0, this.replicas - 1)
       }),
@@ -226,9 +225,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
     [d.arg('allowList', d.T.object)],
   ),
   withMetricLabelsAllowList(allowList):: {
-    config+:: {
-      labels_allow_list: allowList,
-    },
+    config+:: config.withLabelsAllowList(allowList),
   },
 
   '#withMetricAnnotationsAllowList':: d.fn(
@@ -255,9 +252,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
     [d.arg('allowList', d.T.object)],
   ),
   withMetricAnnotationsAllowList(allowList):: {
-    config+:: {
-      annotations_allow_list: allowList,
-    },
+    config+:: config.withAnnotationsAllowList(allowList),
   },
 
   '#withPolicyRules':: d.fn(
@@ -379,16 +374,20 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
       }])
     )
     + {
-      config+:: {
-        metric_opt_in_list+: {
-          [metric]: {}
-          for metric in metrics
-        },
-        [if annotationsAllowList != [] then 'annotations_allow_list']+:
-          { serviceaccounts+: annotationsAllowList },
-        [if labelsAllowList != [] then 'labels_allow_list']+:
-          { serviceaccounts+: labelsAllowList },
-      },
+      config+::
+        config.withMetricOptInListMixin(metrics)
+        + (if annotationsAllowList != []
+           then
+             config.withAnnotationsAllowListMixin({
+               serviceaccounts+: annotationsAllowList,
+             })
+           else {})
+        + (if labelsAllowList != []
+           then
+             config.withLabelsAllowListMixin({
+               serviceaccounts+: labelsAllowList,
+             })
+           else {}),
     },
 
   '#withKubeRBACProxyPolicyRules':: d.fn(
