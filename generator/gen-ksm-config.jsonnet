@@ -12,6 +12,7 @@ local schema =
           {
             Config: null,
             help: null,
+            custom_resource_config: null,
           },
         ),
       },

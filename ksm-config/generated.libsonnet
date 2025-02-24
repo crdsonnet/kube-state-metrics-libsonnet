@@ -11,10 +11,6 @@
   withApiserver(value): {
     apiserver: value,
   },
-  '#withCustomResourceConfig': { 'function': { args: [{ default: null, enums: null, name: 'value', type: ['string'] }], help: '' } },
-  withCustomResourceConfig(value): {
-    custom_resource_config: value,
-  },
   '#withCustomResourceConfigFile': { 'function': { args: [{ default: null, enums: null, name: 'value', type: ['string'] }], help: '' } },
   withCustomResourceConfigFile(value): {
     custom_resource_config_file: value,

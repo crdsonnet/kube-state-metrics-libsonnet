@@ -20,7 +20,6 @@ local ksm-config = import "github.com/crdsonnet/ksm-custom-libsonnet/ksm-config/
 * [`fn withAnnotationsAllowList(value)`](#fn-withannotationsallowlist)
 * [`fn withAnnotationsAllowListMixin(value)`](#fn-withannotationsallowlistmixin)
 * [`fn withApiserver(value)`](#fn-withapiserver)
-* [`fn withCustomResourceConfig(value)`](#fn-withcustomresourceconfig)
 * [`fn withCustomResourceConfigFile(value)`](#fn-withcustomresourceconfigfile)
 * [`fn withCustomResourcesOnly(value=true)`](#fn-withcustomresourcesonly)
 * [`fn withEnableGzipEncoding(value=true)`](#fn-withenablegzipencoding)
@@ -113,17 +112,6 @@ LabelsAllowList represents a list of allowed labels for metrics.`value` looks li
 
 ```jsonnet
 withApiserver(value)
-```
-
-PARAMETERS:
-
-* **value** (`string`)
-
-
-### fn withCustomResourceConfig
-
-```jsonnet
-withCustomResourceConfig(value)
 ```
 
 PARAMETERS:
