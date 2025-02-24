@@ -1,16 +1,14 @@
-local j = import 'github.com/Duologic/jsonnet-libsonnet/main.libsonnet';
-local jutils = import 'github.com/Duologic/jsonnet-libsonnet/utils.libsonnet';
+local autils = import 'github.com/crdsonnet/astsonnet/utils.libsonnet';
 local crdsonnet = import 'github.com/crdsonnet/crdsonnet/crdsonnet/main.libsonnet';
 local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
 
-local schema = import './schema.json';
+local schema = import './customresourcestate.json';
 
 local processor =
-  crdsonnet.processor.new()
-  + crdsonnet.processor.withRenderEngineType('ast')
+  crdsonnet.processor.new('ast')
   + {
     render(name, schema):
-      jutils.get(
+      autils.get(
         super.render(name, schema),
         name,
         default=error 'field %s not found in ast' % name
@@ -23,4 +21,4 @@ local ast = crdsonnet.schema.render(
   processor
 );
 
-ast.toString(break='\n')
+ast.toString()
