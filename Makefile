@@ -1,12 +1,28 @@
-generator/customresourcestate.json:
-	cd go && go run . > ../generator/customresourcestate.json
+.PHONY: generate_schemas
+generate_schemas: go/main.go
+	ln -sfn $(shell go env GOPATH)/pkg/mod/k8s.io/kube-state-metrics/v2@v2.10.1 go/v2
+	cd go && go run .
 
-ksm-custom/generated.libsonnet:
+
+generator/customresourcestate.json: generate_schemas
+	mv go/customresourcestate.json generator/customresourcestate.json
+
+generator/options.json: generate_schemas
+	mv go/options.json generator/options.json
+
+ksm-custom/generated.libsonnet: generator/customresourcestate.json generator/gen-ksm-custom.jsonnet
 	jsonnet -S \
 		-J generator/vendor \
 		generator/gen-ksm-custom.jsonnet \
 		| jsonnetfmt --no-use-implicit-plus - \
 		> ksm-custom/generated.libsonnet
+
+ksm-config/generated.libsonnet: generator/options.json generator/gen-ksm-config.jsonnet
+	jsonnet -S \
+		-J generator/vendor \
+		generator/gen-ksm-config.jsonnet \
+		| jsonnetfmt --no-use-implicit-plus - \
+		> ksm-config/generated.libsonnet
 
 .PHONY: docs
 docs:
@@ -15,6 +31,10 @@ docs:
 	jsonnet -J vendor -S -c -m docs/ \
 			--exec "(import 'doc-util/main.libsonnet').render(import 'main.libsonnet')"
 	@cd ksm-custom && \
+	rm -rf docs/ && \
+	jsonnet -J vendor -S -c -m docs/ \
+			--exec "(import 'doc-util/main.libsonnet').render(import 'main.libsonnet')"
+	@cd ksm-config && \
 	rm -rf docs/ && \
 	jsonnet -J vendor -S -c -m docs/ \
 			--exec "(import 'doc-util/main.libsonnet').render(import 'main.libsonnet')"

@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://k8s.io/kube-state-metrics/v2/pkg/options/options",
+  "$ref": "#/$defs/Options",
+  "$defs": {
+    "LabelsAllowList": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "type": "object",
+      "description": "LabelsAllowList represents a list of allowed labels for metrics."
+    },
+    "MetricSet": {
+      "additionalProperties": {
+        "properties": {},
+        "additionalProperties": false,
+        "type": "object"
+      },
+      "type": "object",
+      "description": "MetricSet represents a collection which has a unique set of metrics."
+    },
+    "NamespaceList": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "NamespaceList represents a list of namespaces to query from."
+    },
+    "Options": {
+      "properties": {
+        "annotations_allow_list": {
+          "$ref": "#/$defs/LabelsAllowList"
+        },
+        "apiserver": {
+          "type": "string"
+        },
+        "custom_resource_config": {
+          "type": "string"
+        },
+        "custom_resource_config_file": {
+          "type": "string"
+        },
+        "custom_resources_only": {
+          "type": "boolean"
+        },
+        "enable_gzip_encoding": {
+          "type": "boolean"
+        },
+        "help": {
+          "type": "boolean"
+        },
+        "host": {
+          "type": "string"
+        },
+        "kubeconfig": {
+          "type": "string"
+        },
+        "labels_allow_list": {
+          "$ref": "#/$defs/LabelsAllowList"
+        },
+        "metric_allowlist": {
+          "$ref": "#/$defs/MetricSet"
+        },
+        "metric_denylist": {
+          "$ref": "#/$defs/MetricSet"
+        },
+        "metric_opt_in_list": {
+          "$ref": "#/$defs/MetricSet"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "namespaces": {
+          "$ref": "#/$defs/NamespaceList"
+        },
+        "namespaces_denylist": {
+          "$ref": "#/$defs/NamespaceList"
+        },
+        "node": {
+          "type": "string"
+        },
+        "pod": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer"
+        },
+        "resources": {
+          "$ref": "#/$defs/ResourceSet"
+        },
+        "shard": {
+          "type": "integer"
+        },
+        "tls_config": {
+          "type": "string"
+        },
+        "telemetry_host": {
+          "type": "string"
+        },
+        "telemetry_port": {
+          "type": "integer"
+        },
+        "total_shards": {
+          "type": "integer"
+        },
+        "use_api_server_cache": {
+          "type": "boolean"
+        },
+        "Config": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "annotations_allow_list",
+        "apiserver",
+        "custom_resource_config",
+        "custom_resource_config_file",
+        "custom_resources_only",
+        "enable_gzip_encoding",
+        "help",
+        "host",
+        "kubeconfig",
+        "labels_allow_list",
+        "metric_allowlist",
+        "metric_denylist",
+        "metric_opt_in_list",
+        "namespace",
+        "namespaces",
+        "namespaces_denylist",
+        "node",
+        "pod",
+        "port",
+        "resources",
+        "shard",
+        "tls_config",
+        "telemetry_host",
+        "telemetry_port",
+        "total_shards",
+        "use_api_server_cache",
+        "Config"
+      ],
+      "description": "Options are the configurable parameters for kube-state-metrics."
+    },
+    "ResourceSet": {
+      "additionalProperties": {
+        "properties": {},
+        "additionalProperties": false,
+        "type": "object"
+      },
+      "type": "object",
+      "description": "ResourceSet represents a collection which has a unique set of resources."
+    }
+  }
+}
