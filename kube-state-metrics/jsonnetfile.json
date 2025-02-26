@@ -5,6 +5,15 @@
       "source": {
         "git": {
           "remote": "https://github.com/crdsonnet/kube-state-metrics-libsonnet.git",
+          "subdir": "ksm-config"
+        }
+      },
+      "version": "master"
+    },
+    {
+      "source": {
+        "git": {
+          "remote": "https://github.com/crdsonnet/kube-state-metrics-libsonnet.git",
           "subdir": "ksm-custom"
         }
       },
