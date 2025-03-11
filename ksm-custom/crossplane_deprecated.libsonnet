@@ -61,7 +61,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
       'Synced',
     ] + additionalConditions;
 
-    local sanitisedConditionForMetricName(condition) = std.asciiLower(condition);
+    local sanitisedConditionForMetricName(condition) = std.strReplace(std.asciiLower(condition), '-', '_');
 
     resource.withGroupVersionKind(
       group,
