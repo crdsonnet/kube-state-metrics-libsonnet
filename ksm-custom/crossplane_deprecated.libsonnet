@@ -44,9 +44,10 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
       d.arg('group', d.T.string),
       d.arg('version', d.T.string),
       d.arg('kind', d.T.string),
+      d.arg('additionalConditions', d.T.array(d.T.string)),
     ],
   ),
-  statusResource(group, version, kind):
+  statusResource(group, version, kind, additionalConditions=[]):
     local resource = ksmCustom.spec.resources;
     local metric = ksmCustom.spec.resources.metrics;
 
@@ -58,7 +59,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
     local conditions = [
       'Ready',
       'Synced',
-    ];
+    ] + additionalConditions;
 
     resource.withGroupVersionKind(
       group,
