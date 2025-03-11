@@ -61,6 +61,8 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
       'Synced',
     ] + additionalConditions;
 
+    local sanitisedConditionForMetricName(condition) = std.asciiLower(condition);
+
     resource.withGroupVersionKind(
       group,
       version,
@@ -73,7 +75,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
     })
     + resource.withMetrics(
       [
-        metric.withName('status_%s_reason' % std.asciiLower(condition))
+        metric.withName('status_%s_reason' % sanitisedConditionForMetricName(condition))
         + metric.withHelp('Reason for status type %s' % condition)
         + metric.each.withType('Info')
         + metric.each.info.withLabelsFromPath({
@@ -87,7 +89,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
         for condition in conditions
       ]
       + [
-        metric.withName('status_%s' % std.asciiLower(condition))
+        metric.withName('status_%s' % sanitisedConditionForMetricName(condition))
         + metric.withHelp('Status conditions for type %s' % condition)
         + metric.each.withType('StateSet')
         + metric.each.stateSet.withLabelName('status')
