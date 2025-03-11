@@ -73,32 +73,32 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
     })
     + resource.withMetrics(
       [
-        metric.withName('status_%s_reason' % std.asciiLower(k))
-        + metric.withHelp('Reason for status type %s' % k)
+        metric.withName('status_%s_reason' % std.asciiLower(condition))
+        + metric.withHelp('Reason for status type %s' % condition)
         + metric.each.withType('Info')
         + metric.each.info.withLabelsFromPath({
           reason: [
             'status',
             'conditions',
-            '[type=%s]' % k,
+            '[type=%s]' % condition,
             'reason',
           ],
         })
-        for k in conditions
+        for condition in conditions
       ]
       + [
-        metric.withName('status_%s' % std.asciiLower(k))
-        + metric.withHelp('Status conditions for type %s' % k)
+        metric.withName('status_%s' % std.asciiLower(condition))
+        + metric.withHelp('Status conditions for type %s' % condition)
         + metric.each.withType('StateSet')
         + metric.each.stateSet.withLabelName('status')
         + metric.each.stateSet.withPath([
           'status',
           'conditions',
-          '[type=%s]' % k,
+          '[type=%s]' % condition,
           'status',
         ])
         + metric.each.stateSet.withList(status)
-        for k in conditions
+        for condition in conditions
       ]
     ),
 
