@@ -102,10 +102,10 @@ local resource = ksmCustom.spec.resources;
               metricNamePrefix,
               [
                 // Differentiate between reasons as Create/Delete operations may take a while
-                root.alerts.claimNotReadyAlert('reason=~"(Creating|Deleting)"', '1h'),
-                root.alerts.claimNotReadyAlert('reason!~"(Creating|Deleting)"', '15m'),
+                root.stateMetrics.alerts.claim.claimNotReadyAlert('reason=~"(Creating|Deleting)"', '1h'),
+                root.stateMetrics.alerts.claim.claimNotReadyAlert('reason!~"(Creating|Deleting)"', '15m'),
 
-                root.alerts.claimNotSyncedAlert('15m'),
+                root.stateMetrics.alerts.claim.claimNotSyncedAlert('15m'),
               ]
             ),
           ]),
