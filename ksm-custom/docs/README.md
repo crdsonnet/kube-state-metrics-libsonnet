@@ -5,13 +5,13 @@
 ## Install
 
 ```
-jb install github.com/crdsonnet/ksm-custom-libsonnet/ksm-custom@master
+jb install github.com/crdsonnet/kube-state-metrics-libsonnet/ksm-custom@master
 ```
 
 ## Usage
 
 ```jsonnet
-local ksm-custom = import "github.com/crdsonnet/ksm-custom-libsonnet/ksm-custom/main.libsonnet"
+local ksm-custom = import "github.com/crdsonnet/kube-state-metrics-libsonnet/ksm-custom@master/main.libsonnet"
 ```
 
 
