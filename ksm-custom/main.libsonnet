@@ -185,8 +185,8 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
         + prometheusRules.rule.withFor('15m')
         + prometheusRules.rule.withAnnotations({
           message: |||
-            {{$labels.customresource_kind}} resource {{$labels.name}} is not {{$labels.type}} with reason {{$labels.reason}}.
-          |||,
+            {{$labels.customresource_kind}} resource {{$labels.name}} is not %s with reason {{$labels.reason}}.
+          ||| % type,
         }),
 
       '#withSeverity':: d.fn(
