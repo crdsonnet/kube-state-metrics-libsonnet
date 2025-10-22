@@ -81,8 +81,25 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
             containerPort.new('self-metrics', self.config.telemetry_port),
           ])
           + k.util.resourcesRequests('50m', '50Mi')
-          + k.util.resourcesLimits('250m', '150Mi'),
-
+          + k.util.resourcesLimits('250m', '150Mi')
+          + container.withReadinessProbe(
+            k.core.v1.probe.new()
+            + k.core.v1.probe.httpGet.new(
+              path='/readyz',
+              port=self.config.telemetry_port,
+            )
+            + k.core.v1.probe.withInitialDelaySeconds(5)
+            + k.core.v1.probe.withTimeoutSeconds(5)
+          )
+          + container.withLivenessProbe(
+            k.core.v1.probe.new()
+            + k.core.v1.probe.httpGet.new(
+              path='/livez',
+              port=self.config.port,
+            )
+            + k.core.v1.probe.withInitialDelaySeconds(5)
+            + k.core.v1.probe.withTimeoutSeconds(5)
+          ),
         local deployment = k.apps.v1.deployment,
         deployment:
           deployment.new(name, 1, [self.container])
