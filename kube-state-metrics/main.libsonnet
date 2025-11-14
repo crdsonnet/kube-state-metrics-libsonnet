@@ -82,24 +82,21 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
           ])
           + k.util.resourcesRequests('50m', '50Mi')
           + k.util.resourcesLimits('250m', '150Mi')
-          + container.withReadinessProbe(
-            k.core.v1.probe.new()
-            + k.core.v1.probe.httpGet.new(
-              path='/readyz',
-              port=self.config.telemetry_port,
-            )
-            + k.core.v1.probe.withInitialDelaySeconds(5)
-            + k.core.v1.probe.withTimeoutSeconds(5)
-          )
-          + container.withLivenessProbe(
-            k.core.v1.probe.new()
-            + k.core.v1.probe.httpGet.new(
-              path='/livez',
-              port=self.config.port,
-            )
-            + k.core.v1.probe.withInitialDelaySeconds(5)
-            + k.core.v1.probe.withTimeoutSeconds(5)
-          ),
+          + container.readinessProbe.httpGet.withPath('/readyz')
+          + container.readinessProbe.httpGet.withPort(self.config.telemetry_port)
+          + container.readinessProbe.withInitialDelaySeconds(5)
+          + container.readinessProbe.withTimeoutSeconds(5)
+          + container.readinessProbe.withFailureThreshold(3)
+          + container.readinessProbe.withPeriodSeconds(10)
+          + container.readinessProbe.withSuccessThreshold(1)
+          + container.readinessProbe.withTimeoutSeconds(5)
+          + container.livenessProbe.httpGet.withPath('/livez')
+          + container.livenessProbe.httpGet.withPort(self.config.port)
+          + container.livenessProbe.withInitialDelaySeconds(5)
+          + container.livenessProbe.withTimeoutSeconds(5)
+          + container.livenessProbe.withFailureThreshold(3)
+          + container.livenessProbe.withPeriodSeconds(10)
+          + container.livenessProbe.withSuccessThreshold(1),
         local deployment = k.apps.v1.deployment,
         deployment:
           deployment.new(name, 1, [self.container])
@@ -120,7 +117,7 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
 
         policyRules:: [],
         rbac:
-          (k + { _config+: { namespace: namespace } }).util.rbac(
+          (k { _config+: { namespace: namespace } }).util.rbac(
             name,
             self.policyRules
           ),
