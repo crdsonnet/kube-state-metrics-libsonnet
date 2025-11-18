@@ -491,5 +491,8 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
                 + container.livenessProbe.withPeriodSeconds(periodSeconds)
                 + container.livenessProbe.withSuccessThreshold(successThreshold),
   },
+  withProbes()::
+    root.withLivenessProbe()
+    + root.withReadinessProbe(),
   utils: utils,
 }
