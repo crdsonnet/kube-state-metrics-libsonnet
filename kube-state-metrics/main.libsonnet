@@ -5,6 +5,8 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
 
 {
   local root = self,
+  local telemetryPortName = 'self-metrics',
+  local ksmPortName = 'ksm',
 
   '#':: d.package.new(
     'kubeStateMetrics',
@@ -77,26 +79,11 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
             ]),
           ])
           + container.withPorts([
-            containerPort.new('ksm', self.config.port),
-            containerPort.new('self-metrics', self.config.telemetry_port),
+            containerPort.new(ksmPortName, self.config.port),
+            containerPort.new(telemetryPortName, self.config.telemetry_port),
           ])
           + k.util.resourcesRequests('50m', '50Mi')
-          + k.util.resourcesLimits('250m', '150Mi')
-          + container.readinessProbe.httpGet.withPath('/readyz')
-          + container.readinessProbe.httpGet.withPort(self.config.telemetry_port)
-          + container.readinessProbe.withInitialDelaySeconds(5)
-          + container.readinessProbe.withTimeoutSeconds(5)
-          + container.readinessProbe.withFailureThreshold(3)
-          + container.readinessProbe.withPeriodSeconds(10)
-          + container.readinessProbe.withSuccessThreshold(1)
-          + container.readinessProbe.withTimeoutSeconds(5)
-          + container.livenessProbe.httpGet.withPath('/livez')
-          + container.livenessProbe.httpGet.withPort(self.config.port)
-          + container.livenessProbe.withInitialDelaySeconds(5)
-          + container.livenessProbe.withTimeoutSeconds(5)
-          + container.livenessProbe.withFailureThreshold(3)
-          + container.livenessProbe.withPeriodSeconds(10)
-          + container.livenessProbe.withSuccessThreshold(1),
+          + k.util.resourcesLimits('250m', '150Mi'),
         local deployment = k.apps.v1.deployment,
         deployment:
           deployment.new(name, 1, [self.container])
@@ -474,6 +461,38 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
     deployment+:
       deployment.configMapVolumeMount(self.CRSMConfigMap, '/crsmconfig'),
   },
-
+  '#withReadinessProbe':: d.fn(
+    |||
+      `withReadinessProbe` configures a readiness probe for the container.
+    |||,
+  ),
+  withReadinessProbe(port=telemetryPortName, failureThreshold=3, periodSeconds=10, successThreshold=1, timeoutSeconds=5, initialDelaySeconds=5, path='/readyz'):: {
+    local container = k.core.v1.container,
+    container+: container.readinessProbe.withFailureThreshold(failureThreshold)
+                + container.readinessProbe.httpGet.withPath(path)
+                + container.readinessProbe.httpGet.withPort(port)
+                + container.readinessProbe.withInitialDelaySeconds(initialDelaySeconds)
+                + container.readinessProbe.withTimeoutSeconds(timeoutSeconds)
+                + container.readinessProbe.withPeriodSeconds(periodSeconds)
+                + container.readinessProbe.withSuccessThreshold(successThreshold),
+  },
+  '#withLivenessProbe':: d.fn(
+    |||
+      `withLivenessProbe` configures a liveness probe for the container.
+    |||,
+  ),
+  withLivenessProbe(port=ksmPortName, failureThreshold=3, periodSeconds=10, successThreshold=1, timeoutSeconds=5, initialDelaySeconds=5, path='/livez'):: {
+    local container = k.core.v1.container,
+    container+: container.livenessProbe.withFailureThreshold(failureThreshold)
+                + container.livenessProbe.httpGet.withPath(path)
+                + container.livenessProbe.httpGet.withPort(port)
+                + container.livenessProbe.withInitialDelaySeconds(initialDelaySeconds)
+                + container.livenessProbe.withTimeoutSeconds(timeoutSeconds)
+                + container.livenessProbe.withPeriodSeconds(periodSeconds)
+                + container.livenessProbe.withSuccessThreshold(successThreshold),
+  },
+  withProbes()::
+    root.withLivenessProbe()
+    + root.withReadinessProbe(),
   utils: utils,
 }
