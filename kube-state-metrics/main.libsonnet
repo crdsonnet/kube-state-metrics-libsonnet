@@ -313,6 +313,10 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
         ],
       },
       {
+        group: 'discovery.k8s.io',
+        resources: ['endpointslices'],
+      },
+      {
         group: 'autoscaling',
         resources: ['horizontalpodautoscalers'],
       },
