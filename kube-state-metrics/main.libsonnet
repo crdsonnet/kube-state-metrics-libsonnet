@@ -339,7 +339,11 @@ local d = import 'github.com/jsonnet-libs/docsonnet/doc-util/main.libsonnet';
         group: 'admissionregistration.k8s.io',
         resources: [
           'mutatingwebhookconfigurations',
+          'mutatingadmissionpolicies',
+          'mutatingadmissionpolicybindings',
           'validatingwebhookconfigurations',
+          'validatingadmissionpolicies',
+          'validatingadmissionpolicybindings',
         ],
       },
       {
